@@ -1,0 +1,135 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Line chart on one shared index scale (2014 = 100) combining two sources. The paddy harvested per person (DOSM tonnes divided by FAO population) falls to 67 by 2023, while the rice available per person (FAO) stays near 97. Hovering a year shows both values in kilograms.",
+  "title": {
+    "text": ["We harvest a third less paddy per person", "than in 2014; the rice available barely moved"],
+    "subtitle": [
+      "Index, 2014 = 100. Paddy harvested (DOSM) divided by population (FAO),",
+      "and rice available per person (FAO). Malaysia, 2014–2023."
+    ]
+  },
+  "width": 520,
+  "height": 380,
+  "autosize": {"type": "fit", "contains": "padding"},
+  "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
+  "data": {"url": "data/clean/paddy_vs_rice_per_person.csv", "format": {"type": "csv", "parse": {"year": "number", "kg_per_person": "number", "index_2014": "number"}}},
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "axis": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#5A5348", "titleColor": "#5A5348",
+             "labelFontSize": 13, "titleFontSize": 13, "domainColor": "#D9D1C4", "tickColor": "#D9D1C4", "gridColor": "#ECE6DB"},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "layer": [
+    {
+      "description": "Reference line: the 2014 level",
+      "data": {"values": [{"y": 100}]},
+      "mark": {"type": "rule", "strokeDash": [4, 4], "stroke": "#A9A296", "strokeWidth": 1},
+      "encoding": {"y": {"field": "y", "type": "quantitative", "scale": {"domain": [60, 112]}}}
+    },
+    {
+      "description": "Label for the reference line",
+      "data": {"values": [{"y": 100, "x": 2014, "t": "2014 level"}]},
+      "mark": {"type": "text", "align": "left", "baseline": "bottom", "dy": -4, "dx": 2, "fontSize": 12, "color": "#5A5348"},
+      "encoding": {
+        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [2014, 2023]}},
+        "y": {"field": "y", "type": "quantitative", "scale": {"domain": [60, 112]}},
+        "text": {"field": "t", "type": "nominal"}
+      }
+    },
+    {
+      "description": "The two index lines",
+      "mark": {"type": "line", "strokeWidth": 3.5, "strokeCap": "round", "strokeJoin": "round"},
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative", "scale": {"domain": [2014, 2023]},
+              "axis": {"title": null, "values": [2014, 2017, 2020, 2023], "format": "d", "grid": false}},
+        "y": {"field": "index_2014", "type": "quantitative", "scale": {"domain": [60, 112], "zero": false},
+              "axis": {"title": "Index (2014 = 100)", "values": [60, 70, 80, 90, 100], "grid": true, "domain": false, "ticks": false}},
+        "color": {"field": "series_id", "type": "nominal", "legend": null,
+                  "scale": {"domain": ["paddy", "rice"], "range": ["#00553F", "#6F695F"]}}
+      }
+    },
+    {
+      "description": "Direct labels at the right-hand end of each line, with the total change since 2014",
+      "transform": [
+        {"joinaggregate": [{"op": "max", "field": "year", "as": "last_year"}]},
+        {"filter": "datum.year == datum.last_year"},
+        {"calculate": "[replace(datum.series, ' per person', ''), 'per person: ' + replace(format(datum.index_2014 - 100, '+.0f'), '-', '−') + '%']", "as": "label"}
+      ],
+      "mark": {"type": "text", "align": "left", "baseline": "middle", "dx": 8, "fontSize": 13, "fontWeight": 600, "lineHeight": 16},
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative", "scale": {"domain": [2014, 2023]}},
+        "y": {"field": "index_2014", "type": "quantitative", "scale": {"domain": [60, 112], "zero": false}},
+        "text": {"field": "label", "type": "nominal"},
+        "color": {"condition": {"test": "datum.series_id == 'paddy'", "value": "#00553F"}, "value": "#1F1B16"}
+      }
+    },
+    {
+      "description": "Annotation: the year the rice on the plate stopped falling",
+      "transform": [
+        {"filter": "datum.series_id == 'rice'"},
+        {"joinaggregate": [{"op": "min", "field": "index_2014", "as": "lowest"}]},
+        {"filter": "datum.index_2014 == datum.lowest"},
+        {"calculate": "['Rice available per person was', 'lowest in ' + datum.year + ' (index ' + format(datum.index_2014, '.1f') + ')']", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "left", "baseline": "top", "dx": -4, "dy": 0, "fontSize": 12.5, "fontWeight": 600, "color": "#1F1B16", "lineHeight": 15},
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative", "scale": {"domain": [2014, 2023]}},
+        "y": {"datum": 112, "type": "quantitative", "scale": {"domain": [60, 112], "zero": false}},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Annotation leader: short line from the note down to the lowest point of the rice line",
+      "transform": [
+        {"filter": "datum.series_id == 'rice'"},
+        {"joinaggregate": [{"op": "min", "field": "index_2014", "as": "lowest"}]},
+        {"filter": "datum.index_2014 == datum.lowest"}
+      ],
+      "mark": {"type": "point", "shape": "circle", "size": 90, "filled": false, "stroke": "#1F1B16", "strokeWidth": 1.5},
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative", "scale": {"domain": [2014, 2023]}},
+        "y": {"field": "index_2014", "type": "quantitative", "scale": {"domain": [60, 112], "zero": false}}
+      }
+    },
+    {
+      "description": "Annotation leader: thin line from the note down to the lowest point of the rice line",
+      "transform": [
+        {"filter": "datum.series_id == 'rice'"},
+        {"joinaggregate": [{"op": "min", "field": "index_2014", "as": "lowest"}]},
+        {"filter": "datum.index_2014 == datum.lowest"}
+      ],
+      "mark": {"type": "rule", "stroke": "#1F1B16", "strokeWidth": 1},
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative", "scale": {"domain": [2014, 2023]}},
+        "y": {"field": "index_2014", "type": "quantitative", "scale": {"domain": [60, 112], "zero": false}, "title": null},
+        "y2": {"datum": 100.8}
+      }
+    },
+    {
+      "description": "Invisible points that find the year nearest the mouse",
+      "transform": [{"pivot": "series_id", "value": "kg_per_person", "groupby": ["year"]}],
+      "params": [{"name": "hover", "select": {"type": "point", "fields": ["year"], "nearest": true, "on": "mouseover", "clear": "mouseout"}}],
+      "mark": {"type": "point", "opacity": 0},
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative", "scale": {"domain": [2014, 2023]}},
+        "y": {"field": "rice", "type": "quantitative", "scale": {"domain": [60, 112]}}
+      }
+    },
+    {
+      "description": "Vertical rule and tooltip for the hovered year (appears only on hover)",
+      "transform": [{"pivot": "series_id", "value": "kg_per_person", "groupby": ["year"]}],
+      "mark": {"type": "rule", "stroke": "#1F1B16", "strokeWidth": 1},
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative", "scale": {"domain": [2014, 2023]}},
+        "opacity": {"condition": {"param": "hover", "empty": false, "value": 0.35}, "value": 0},
+        "tooltip": [
+          {"field": "year", "type": "ordinal", "title": "Year"},
+          {"field": "paddy", "type": "quantitative", "title": "Paddy harvested per person (kg)", "format": ".1f"},
+          {"field": "rice", "type": "quantitative", "title": "Rice available per person (kg)", "format": ".1f"}
+        ]
+      }
+    }
+  ]
+}

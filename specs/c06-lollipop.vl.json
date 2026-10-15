@@ -1,0 +1,83 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Lollipop chart of Malaysia's 2024 harvest by crop group, in tonnes. Each crop group has a line that starts at zero and ends in a dot; the dot's distance from the left edge is the weight harvested. Paddy (2.06 million tonnes) and fruit (1.97 million tonnes) are the two longest, followed by vegetables, industrial crops and coconut. Flowers are left out because DOSM does not count them in tonnes.",
+  "title": {
+    "text": ["Paddy and fruit are Malaysia's two", "biggest harvests"],
+    "subtitle": [
+      "Harvest by crop group, tonnes. Distance from the left edge shows weight.",
+      "Malaysia, 2024. Source: DOSM. Flowers are not counted in tonnes."
+    ]
+  },
+  "width": 520,
+  "height": 380,
+  "autosize": {"type": "fit", "contains": "padding"},
+  "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
+  "data": {"url": "data/clean/crop_harvest.csv", "format": {"type": "csv", "parse": {"production_t": "number"}}},
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "axis": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#5A5348", "titleColor": "#5A5348",
+             "labelFontSize": 13, "titleFontSize": 13, "domainColor": "#A9A296", "tickColor": "#D9D1C4"},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "layer": [
+    {
+      "description": "The stem: a line from zero to the harvest",
+      "transform": [{"calculate": "0", "as": "zero"}],
+      "mark": {"type": "rule", "strokeWidth": 3, "strokeCap": "round"},
+      "encoding": {
+        "y": {
+          "field": "label", "type": "nominal", "sort": {"field": "production_t", "order": "descending"},
+          "axis": {"title": null, "ticks": false, "domain": true, "labelFontSize": 14, "labelColor": "#1F1B16", "labelPadding": 10, "labelLimit": 300, "grid": false}
+        },
+        "x": {"field": "zero", "type": "quantitative", "scale": {"domain": [0, 3000000], "nice": false}, "axis": null},
+        "x2": {"field": "production_t"},
+        "color": {"condition": [{"test": "datum.crop_type == 'paddy'", "value": "#00553F"}, {"test": "datum.crop_type == 'fruits'", "value": "#6AAA92"}], "value": "#A9A296"}
+      }
+    },
+    {
+      "description": "The dot at the end of each stem. Position along the line = tonnes harvested (zero baseline).",
+      "params": [{"name": "hover", "select": {"type": "point", "fields": ["label"], "on": "mouseover", "clear": "mouseout"}}],
+      "mark": {"type": "circle", "size": 190, "opacity": 1},
+      "encoding": {
+        "y": {"field": "label", "type": "nominal", "sort": {"field": "production_t", "order": "descending"}},
+        "x": {"field": "production_t", "type": "quantitative", "scale": {"domain": [0, 3000000], "nice": false}},
+        "color": {"condition": [{"test": "datum.crop_type == 'paddy'", "value": "#00553F"}, {"test": "datum.crop_type == 'fruits'", "value": "#6AAA92"}], "value": "#A9A296"},
+        "stroke": {"condition": {"param": "hover", "empty": false, "value": "#1F1B16"}, "value": "#FBF8F3"},
+        "strokeWidth": {"condition": {"param": "hover", "empty": false, "value": 2.5}, "value": 1},
+        "tooltip": [
+          {"field": "label", "type": "nominal", "title": "Crop group"},
+          {"field": "production_t", "type": "quantitative", "title": "Harvest (tonnes)", "format": ",.0f"}
+        ]
+      }
+    },
+    {
+      "description": "The value written next to each dot, with its unit",
+      "transform": [
+        {"calculate": "datum.production_t >= 1000000 ? format(datum.production_t / 1000000, '.2f') + ' million t' : format(datum.production_t / 1000, ',.0f') + ' thousand t'", "as": "value_label"}
+      ],
+      "mark": {"type": "text", "align": "left", "baseline": "middle", "dx": 12, "fontSize": 13, "fontWeight": 600, "color": "#1F1B16"},
+      "encoding": {
+        "y": {"field": "label", "type": "nominal", "sort": {"field": "production_t", "order": "descending"}},
+        "x": {"field": "production_t", "type": "quantitative", "scale": {"domain": [0, 3000000], "nice": false}},
+        "text": {"field": "value_label", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Annotation: paddy and fruit are almost level in weight",
+      "transform": [
+        {"filter": "datum.crop_type == 'paddy'"},
+        {"calculate": "'fruits'", "as": "fruit_key"},
+        {"lookup": "fruit_key", "from": {"data": {"url": "data/clean/crop_harvest.csv", "format": {"type": "csv", "parse": {"production_t": "number"}}}, "key": "crop_type", "fields": ["production_t"]}, "as": ["fruit_t"]},
+        {"calculate": "['Paddy (' + format(datum.production_t / 1000000, '.2f') + ' million t) and', 'fruit (' + format(datum.fruit_t / 1000000, '.2f') + ' million t) are almost level']", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "right", "baseline": "middle", "fontSize": 13, "fontWeight": 600, "lineHeight": 16, "color": "#00553F"},
+      "encoding": {
+        "y": {"datum": "Spices", "type": "nominal"},
+        "x": {"datum": 3000000, "type": "quantitative", "scale": {"domain": [0, 3000000], "nice": false}},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    }
+  ]
+}

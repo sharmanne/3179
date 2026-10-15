@@ -1,0 +1,140 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Dot map of three food crops harvested in 2024: vegetables (magenta), fruit (gold) and coconut (brown). One dot is 5,000 tonnes and dots are placed at random inside each state, so dot density shows where harvests are large. Pahang grows 45% of the vegetables and Johor 39% of the fruit. Clicking a crop in the legend shows only that crop.",
+  "title": {
+    "text": ["Pahang grows 45% of the vegetables,", "Johor 39% of the fruit"],
+    "subtitle": [
+      "Harvest of vegetables, fruit and coconut, 2024. One dot = 5,000 tonnes. Use the buttons below to show one crop.",
+      "Dots are placed at random inside each state; they do not show farms. Source: DOSM."
+    ]
+  },
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "legend": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#1F1B16", "titleColor": "#5A5348", "labelFontSize": 13, "titleFontSize": 12, "titleLimit": 300, "labelLimit": 300},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "autosize": {"type": "pad"},
+  "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
+  "spacing": 10,
+  "params": [
+    {"name": "crop_pick", "value": "All", "bind": {"input": "radio", "options": ["All", "Vegetables", "Fruit", "Coconut"], "name": "Show: "}}
+  ],
+  "hconcat": [
+    {
+      "description": "Peninsular Malaysia",
+      "width": 490,
+      "height": 440,
+      "projection": {"type": "conicEqualArea", "parallels": [2, 6], "rotate": [-109.6, 0, 0], "center": [-7.55, 3.95], "scale": 3300, "translate": [235, 220]},
+      "layer": [
+        {
+          "data": {"url": "data/clean/states.topojson", "format": {"type": "topojson", "feature": "peninsula"}},
+          "mark": {"type": "geoshape", "fill": "#ECE6DB", "stroke": "#FBF8F3", "strokeWidth": 1}
+        },
+        {
+          "description": "Dots: one per 5,000 tonnes harvested",
+          "data": {"url": "data/clean/crop_dots.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number"}}},
+          "transform": [{"filter": "datum.region == 'peninsula' && (crop_pick == 'All' || datum.crop == crop_pick)"}],
+          "mark": {"type": "circle", "size": 16, "stroke": null},
+          "encoding": {
+            "longitude": {"field": "lon", "type": "quantitative"},
+            "latitude": {"field": "lat", "type": "quantitative"},
+            "color": {"field": "crop", "type": "nominal",
+                      "scale": {"domain": ["Vegetables", "Fruit", "Coconut"], "range": ["#B5367F", "#C99A00", "#7A4A24"]}},
+            "opacity": {"value": 0.92},
+            "tooltip": [
+              {"field": "crop", "type": "nominal", "title": "Crop"},
+              {"field": "state", "type": "nominal", "title": "State"}
+            ]
+          }
+        },
+        {
+          "description": "Annotation leader lines from a state to its note in the sea",
+          "data": {"url": "data/clean/map_annotations.csv", "format": {"type": "csv", "parse": {"anchor_lon": "number", "anchor_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.chart == 'C5' && datum.region == 'peninsula'"},
+            {"lookup": "state", "from": {"data": {"url": "data/clean/crop_top_states_2024.csv", "format": {"type": "csv", "parse": {"share_pct": "number", "lon": "number", "lat": "number"}}}, "key": "state", "fields": ["lon", "lat"]}, "as": ["state_lon", "state_lat"]}
+          ],
+          "mark": {"type": "rule", "stroke": "#5A5348", "strokeWidth": 1.2},
+          "encoding": {
+            "longitude": {"field": "state_lon", "type": "quantitative"},
+            "latitude": {"field": "state_lat", "type": "quantitative"},
+            "longitude2": {"field": "anchor_lon"},
+            "latitude2": {"field": "anchor_lat"}
+          }
+        },
+        {
+          "description": "Annotations: the state that grows the largest share of each crop",
+          "data": {"url": "data/clean/map_annotations.csv", "format": {"type": "csv", "parse": {"anchor_lon": "number", "anchor_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.chart == 'C5' && datum.region == 'peninsula' && datum.state != 'Johor'"},
+            {"lookup": "state", "from": {"data": {"url": "data/clean/crop_top_states_2024.csv", "format": {"type": "csv", "parse": {"share_pct": "number", "lon": "number", "lat": "number"}}}, "key": "state", "fields": ["crop", "share_pct"]}, "as": ["crop", "share"]},
+            {"calculate": "[datum.state + ' grows', format(datum.share, '.0f') + '% of the', lower(datum.crop)]", "as": "note"}
+          ],
+          "mark": {"type": "text", "align": "left", "baseline": "middle", "dx": 6, "fontSize": 13, "fontWeight": 600, "lineHeight": 16},
+          "encoding": {
+            "longitude": {"field": "anchor_lon", "type": "quantitative"},
+            "latitude": {"field": "anchor_lat", "type": "quantitative"},
+            "text": {"field": "note", "type": "nominal"},
+            "color": {"condition": [
+              {"test": "datum.crop == 'Vegetables'", "value": "#8A2A5F"},
+              {"test": "datum.crop == 'Fruit'", "value": "#7A5C00"}
+            ], "value": "#7A4A24"}
+          }
+        },
+        {
+          "description": "Annotation for Johor: centred below the state, where there is room",
+          "data": {"url": "data/clean/map_annotations.csv", "format": {"type": "csv", "parse": {"anchor_lon": "number", "anchor_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.chart == 'C5' && datum.region == 'peninsula' && datum.state == 'Johor'"},
+            {"lookup": "state", "from": {"data": {"url": "data/clean/crop_top_states_2024.csv", "format": {"type": "csv", "parse": {"share_pct": "number", "lon": "number", "lat": "number"}}}, "key": "state", "fields": ["crop", "share_pct"]}, "as": ["crop", "share"]},
+            {"calculate": "[datum.state + ' grows ' + format(datum.share, '.0f') + '%', 'of the ' + lower(datum.crop)]", "as": "note"}
+          ],
+          "mark": {"type": "text", "align": "center", "baseline": "top", "dy": 4, "fontSize": 13, "fontWeight": 600, "lineHeight": 16},
+          "encoding": {
+            "longitude": {"field": "anchor_lon", "type": "quantitative"},
+            "latitude": {"field": "anchor_lat", "type": "quantitative"},
+            "text": {"field": "note", "type": "nominal"},
+            "color": {"condition": [
+              {"test": "datum.crop == 'Vegetables'", "value": "#8A2A5F"},
+              {"test": "datum.crop == 'Fruit'", "value": "#7A5C00"}
+            ], "value": "#7A4A24"}
+          }
+        }
+      ]
+    },
+    {
+      "description": "East Malaysia (Sabah, Sarawak, W.P. Labuan)",
+      "width": 580,
+      "height": 440,
+      "projection": {"type": "conicEqualArea", "parallels": [2, 6], "rotate": [-109.6, 0, 0], "center": [4.85, 4.1], "scale": 3300, "translate": [290, 220]},
+      "layer": [
+        {
+          "data": {"url": "data/clean/states.topojson", "format": {"type": "topojson", "feature": "east"}},
+          "mark": {"type": "geoshape", "fill": "#ECE6DB", "stroke": "#FBF8F3", "strokeWidth": 1}
+        },
+        {
+          "description": "Dots for East Malaysia. This layer carries the crop key (colour legend).",
+          "data": {"url": "data/clean/crop_dots.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number"}}},
+          "transform": [{"filter": "datum.region == 'east' && (crop_pick == 'All' || datum.crop == crop_pick)"}],
+          "mark": {"type": "circle", "size": 16, "stroke": null},
+          "encoding": {
+            "longitude": {"field": "lon", "type": "quantitative"},
+            "latitude": {"field": "lat", "type": "quantitative"},
+            "color": {
+              "field": "crop", "type": "nominal",
+              "scale": {"domain": ["Vegetables", "Fruit", "Coconut"], "range": ["#B5367F", "#C99A00", "#7A4A24"]},
+              "legend": {"title": "One dot = 5,000 tonnes", "orient": "none", "legendX": 8, "legendY": 4, "symbolType": "circle", "symbolSize": 90, "symbolOpacity": 0.92, "padding": 6}
+            },
+            "opacity": {"value": 0.92},
+            "tooltip": [
+              {"field": "crop", "type": "nominal", "title": "Crop"},
+              {"field": "state", "type": "nominal", "title": "State"}
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

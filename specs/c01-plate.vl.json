@@ -1,0 +1,167 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Plate-shaped dot chart. Two plates of 100 dots each show how Malaysia's food energy per person was split between food groups in 2010 and in 2023; one dot is 1% of the day's food energy. Rice goes from 30 dots to 24.",
+  "title": {
+    "frame": "group",
+    "text": ["Rice's slice of the plate shrank from 30 dots to 24"],
+    "subtitle": [
+      "Share of the day's food energy available per person, by food group. One dot = 1%.",
+      "Malaysia, 2010 and 2023. Source: FAO."
+    ]
+  },
+  "width": 1000,
+  "height": 470,
+  "autosize": {"type": "none"},
+  "padding": {"left": 4, "right": 4, "top": 72, "bottom": 4},
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "layer": [
+    {
+      "description": "Plate rims",
+      "data": {"url": "data/clean/food_plate_rims.csv", "format": {"type": "csv", "parse": {"year": "number", "x": "number", "y": "number", "rim_size_px2": "number", "label_y": "number"}}},
+      "mark": {"type": "point", "shape": "circle", "filled": false, "stroke": "#CFC8BB", "strokeWidth": 2.5},
+      "encoding": {
+        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"field": "y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "size": {"field": "rim_size_px2", "type": "quantitative", "scale": null, "legend": null}
+      }
+    },
+    {
+      "description": "Year labels above each plate",
+      "data": {"url": "data/clean/food_plate_rims.csv", "format": {"type": "csv", "parse": {"year": "number", "x": "number", "y": "number", "rim_size_px2": "number", "label_y": "number"}}},
+      "mark": {"type": "text", "font": "Fraunces", "fontSize": 26, "fontWeight": 600, "color": "#1F1B16"},
+      "encoding": {
+        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"field": "label_y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "text": {"field": "year", "type": "nominal"}
+      }
+    },
+    {
+      "description": "The 200 dots (100 per plate). Rice starts at 12 o'clock and the groups follow clockwise.",
+      "data": {"url": "data/clean/food_plate_cells.csv", "format": {"type": "csv", "parse": {"year": "number", "x": "number", "y": "number", "share_pct": "number", "kcal_per_day": "number"}}},
+      "mark": {"type": "circle", "size": 227, "opacity": 1, "stroke": "#A9A296", "strokeWidth": 0.6},
+      "encoding": {
+        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"field": "y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "color": {
+          "field": "group", "type": "nominal", "legend": null,
+          "scale": {
+            "domain": ["Rice", "Wheat and other cereals", "Vegetable oils", "Sugar and sweeteners", "Meat", "Milk and eggs", "Fish and seafood", "Fruit and vegetables", "Everything else"],
+            "range": ["#00553F", "#B9B2A5", "#8F887C", "#1F1B16", "#5A5348", "#3A8FD6", "#CFC8BB", "#A9A296", "#E4DED2"]
+          }
+        },
+        "tooltip": [
+          {"field": "group", "type": "nominal", "title": "Food group"},
+          {"field": "year", "type": "nominal", "title": "Year"},
+          {"field": "share_pct", "type": "quantitative", "title": "Share of food energy (%)", "format": ".1f"},
+          {"field": "kcal_per_day", "type": "quantitative", "title": "Energy per person (kcal a day)", "format": ",.0f"}
+        ]
+      }
+    },
+    {
+      "description": "Middle table: colour swatch for each group (this table is the legend)",
+      "data": {"url": "data/clean/food_plate_summary.csv", "format": {"type": "csv", "parse": {"dots_2010": "number", "dots_2023": "number", "row_y": "number"}}},
+      "mark": {"type": "circle", "size": 120, "opacity": 1, "stroke": "#A9A296", "strokeWidth": 0.6},
+      "encoding": {
+        "x": {"datum": 414, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"field": "row_y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "color": {
+          "field": "group", "type": "nominal", "legend": null,
+          "scale": {
+            "domain": ["Rice", "Wheat and other cereals", "Vegetable oils", "Sugar and sweeteners", "Meat", "Milk and eggs", "Fish and seafood", "Fruit and vegetables", "Everything else"],
+            "range": ["#00553F", "#B9B2A5", "#8F887C", "#1F1B16", "#5A5348", "#3A8FD6", "#CFC8BB", "#A9A296", "#E4DED2"]
+          }
+        }
+      }
+    },
+    {
+      "description": "Middle table: group names",
+      "data": {"url": "data/clean/food_plate_summary.csv", "format": {"type": "csv", "parse": {"dots_2010": "number", "dots_2023": "number", "row_y": "number"}}},
+      "mark": {"type": "text", "align": "left", "baseline": "middle", "fontSize": 14, "color": "#1F1B16"},
+      "encoding": {
+        "x": {"datum": 430, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"field": "row_y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "text": {"field": "group", "type": "nominal"},
+        "color": {"condition": {"test": "datum.group == 'Rice'", "value": "#00553F"}, "value": "#1F1B16"}
+      }
+    },
+    {
+      "description": "Middle table: number of dots in 2010 (left of the names)",
+      "data": {"url": "data/clean/food_plate_summary.csv", "format": {"type": "csv", "parse": {"dots_2010": "number", "dots_2023": "number", "row_y": "number"}}},
+      "mark": {"type": "text", "align": "right", "baseline": "middle", "fontSize": 15, "color": "#5A5348"},
+      "encoding": {
+        "x": {"datum": 398, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"field": "row_y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "text": {"field": "dots_2010", "type": "quantitative"},
+        "color": {"condition": {"test": "datum.group == 'Rice'", "value": "#00553F"}, "value": "#1F1B16"}
+      }
+    },
+    {
+      "description": "Middle table: number of dots in 2023 (right of the names)",
+      "data": {"url": "data/clean/food_plate_summary.csv", "format": {"type": "csv", "parse": {"dots_2010": "number", "dots_2023": "number", "row_y": "number"}}},
+      "mark": {"type": "text", "align": "left", "baseline": "middle", "fontSize": 15, "color": "#1F1B16"},
+      "encoding": {
+        "x": {"datum": 606, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"field": "row_y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "text": {"field": "dots_2023", "type": "quantitative"},
+        "color": {"condition": {"test": "datum.group == 'Rice'", "value": "#00553F"}, "value": "#1F1B16"}
+      }
+    },
+    {
+      "description": "Middle table: column headings",
+      "data": {"values": [{"t": "2010", "x": 398, "a": "right"}, {"t": "dots out of 100", "x": 502, "a": "center"}, {"t": "2023", "x": 606, "a": "left"}]},
+      "mark": {"type": "text", "baseline": "middle", "fontSize": 12, "color": "#5A5348"},
+      "encoding": {
+        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"datum": 82, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "text": {"field": "t", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Annotation 1: why rice matters, with a line to the rice wedge of the 2023 plate",
+      "data": {"url": "data/clean/food_plate_summary.csv", "format": {"type": "csv", "parse": {"dots_2010": "number", "dots_2023": "number", "row_y": "number"}}},
+      "transform": [
+        {"filter": "datum.group == 'Rice'"},
+        {"calculate": "['Rice: ' + datum.dots_2010 + ' dots → ' + datum.dots_2023, 'the biggest change', 'on the plate']", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "left", "baseline": "middle", "fontSize": 13, "lineHeight": 16, "fontWeight": 600, "color": "#00553F"},
+      "encoding": {
+        "x": {"datum": 846, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"datum": 50, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Leader line from the rice note to the rice wedge",
+      "data": {"url": "data/clean/food_plate_summary.csv", "format": {"type": "csv", "parse": {"dots_2010": "number", "dots_2023": "number", "row_y": "number"}}},
+      "transform": [{"filter": "datum.group == 'Rice'"}],
+      "mark": {"type": "rule", "stroke": "#00553F", "strokeWidth": 1.5},
+      "encoding": {
+        "x": {"datum": 868, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "x2": {"datum": 896},
+        "y": {"datum": 76, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "y2": {"datum": 128}
+      }
+    },
+    {
+      "description": "Annotation 2: sugar and sweeteners give more energy than all meat",
+      "data": {"url": "data/clean/food_plate_summary.csv", "format": {"type": "csv", "parse": {"dots_2010": "number", "dots_2023": "number", "row_y": "number"}}},
+      "transform": [
+        {"filter": "datum.group == 'Sugar and sweeteners'"},
+        {"calculate": "'Meat'", "as": "meat_key"},
+        {"lookup": "meat_key", "from": {"data": {"url": "data/clean/food_plate_summary.csv", "format": {"type": "csv", "parse": {"dots_2010": "number", "dots_2023": "number", "row_y": "number"}}}, "key": "group", "fields": ["dots_2023"]}, "as": ["meat_dots_2023"]},
+        {"calculate": "'Sugar and sweeteners (' + datum.dots_2023 + ' dots) give more energy than all meat (' + datum.meat_dots_2023 + ' dots)'", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "center", "baseline": "middle", "fontSize": 14, "fontWeight": 600, "color": "#1F1B16"},
+      "encoding": {
+        "x": {"datum": 500, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"datum": 452, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    }
+  ]
+}

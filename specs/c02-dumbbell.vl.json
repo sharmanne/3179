@@ -1,0 +1,130 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Dumbbell dot plot of twelve foods. Each row joins the kilograms of that food available per person per year in 2010–12 (grey dot) to 2021–23 (coloured dot): blue means more, orange means less, grey means little change. Milk, eggs and fruit rose; rice and fish fell; flour and sugar held steady.",
+  "title": {
+    "text": ["Milk and eggs rose, rice and fish fell,", "flour and sugar held steady"],
+    "subtitle": [
+      "Food available per person, kilograms a year.",
+      "Average of 2010–12 compared with 2021–23. Source: FAO."
+    ]
+  },
+  "width": 520,
+  "height": 440,
+  "autosize": {"type": "fit", "contains": "padding"},
+  "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
+  "data": {"url": "data/clean/food_change.csv", "format": {"type": "csv", "parse": {"kg_2010_12": "number", "kg_2021_23": "number", "change_kg": "number", "change_pct": "number", "sort_order": "number"}}},
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "axis": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#5A5348", "titleColor": "#5A5348",
+             "labelFontSize": 13, "titleFontSize": 13, "domainColor": "#D9D1C4", "tickColor": "#D9D1C4", "gridColor": "#ECE6DB"},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "layer": [
+    {
+      "description": "Connector between the two years",
+      "mark": {"type": "rule", "strokeWidth": 3, "strokeCap": "round", "opacity": 1},
+      "encoding": {
+        "y": {
+          "field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"},
+          "axis": {"title": null, "ticks": false, "domain": false, "labelFontSize": 14, "labelColor": "#1F1B16", "labelPadding": 8, "labelLimit": 400, "grid": false}
+        },
+        "x": {
+          "field": "kg_2010_12", "type": "quantitative", "scale": {"domain": [0, 185]},
+          "axis": {"title": "Kilograms per person per year", "values": [0, 25, 50, 75, 100, 125, 150], "format": ",.0f", "grid": true, "domain": false}
+        },
+        "x2": {"field": "kg_2021_23"},
+        "color": {
+          "field": "direction", "type": "nominal", "legend": null,
+          "scale": {"domain": ["more", "little change", "less"], "range": ["#3A8FD6", "#A9A296", "#D55E00"]}
+        }
+      }
+    },
+    {
+      "description": "2010–12 dot (grey)",
+      "mark": {"type": "circle", "size": 110, "color": "#A9A296", "opacity": 1, "stroke": "#FBF8F3", "strokeWidth": 1},
+      "encoding": {
+        "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
+        "x": {"field": "kg_2010_12", "type": "quantitative", "scale": {"domain": [0, 185]}}
+      }
+    },
+    {
+      "description": "2021–23 dot (blue = more, orange = less, grey = little change)",
+      "mark": {"type": "circle", "size": 170, "opacity": 1, "stroke": "#FBF8F3", "strokeWidth": 1},
+      "encoding": {
+        "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
+        "x": {"field": "kg_2021_23", "type": "quantitative", "scale": {"domain": [0, 185]}},
+        "color": {
+          "field": "direction", "type": "nominal", "legend": null,
+          "scale": {"domain": ["more", "little change", "less"], "range": ["#3A8FD6", "#A9A296", "#D55E00"]}
+        },
+        "tooltip": [
+          {"field": "food", "type": "nominal", "title": "Food"},
+          {"field": "kg_2010_12", "type": "quantitative", "title": "2010–12 (kg per person a year)", "format": ".1f"},
+          {"field": "kg_2021_23", "type": "quantitative", "title": "2021–23 (kg per person a year)", "format": ".1f"},
+          {"field": "change_kg", "type": "quantitative", "title": "Change (kg)", "format": "+.1f"},
+          {"field": "change_pct", "type": "quantitative", "title": "Change (%)", "format": "+.0f"}
+        ]
+      }
+    },
+    {
+      "description": "Percentage change written at the right-hand end of each row",
+      "transform": [
+        {"calculate": "(datum.change_pct >= 0 ? '+' : '−') + format(abs(datum.change_pct), '.0f') + '%'", "as": "label"}
+      ],
+      "mark": {"type": "text", "align": "right", "baseline": "middle", "fontSize": 14, "fontWeight": 600},
+      "encoding": {
+        "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
+        "x": {"datum": 185, "type": "quantitative", "scale": {"domain": [0, 185]}},
+        "text": {"field": "label", "type": "nominal"},
+        "color": {"condition": [
+          {"test": "datum.direction == 'more'", "value": "#1F6DAF"},
+          {"test": "datum.direction == 'less'", "value": "#9A4400"}
+        ], "value": "#5A5348"}
+      }
+    },
+    {
+      "description": "Key to the two dots, written above the first row: 2010–12 (left of its dot), 2021–23 (right of its dot)",
+      "transform": [{"filter": "datum.sort_order == 1"}],
+      "mark": {"type": "text", "align": "right", "baseline": "bottom", "dy": -12, "dx": -4, "fontSize": 12, "color": "#5A5348"},
+      "encoding": {
+        "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
+        "x": {"field": "kg_2010_12", "type": "quantitative", "scale": {"domain": [0, 185]}},
+        "text": {"value": "2010–12"}
+      }
+    },
+    {
+      "transform": [{"filter": "datum.sort_order == 1"}],
+      "mark": {"type": "text", "align": "left", "baseline": "bottom", "dy": -12, "dx": 4, "fontSize": 12, "color": "#1F6DAF", "fontWeight": 600},
+      "encoding": {
+        "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
+        "x": {"field": "kg_2021_23", "type": "quantitative", "scale": {"domain": [0, 185]}},
+        "text": {"value": "2021–23"}
+      }
+    },
+    {
+      "description": "Annotation 1: rice lost the most kilograms",
+      "transform": [
+        {"filter": "datum.food == 'Rice'"},
+        {"calculate": "'Rice: ' + format(abs(datum.change_kg), '.0f') + ' kg less per person each year'", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "right", "baseline": "middle", "dx": -14, "fontSize": 13, "fontWeight": 600, "color": "#9A4400"},
+      "encoding": {
+        "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
+        "x": {"field": "kg_2021_23", "type": "quantitative", "scale": {"domain": [0, 185]}},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Annotation 2: the two baking staples did not move",
+      "transform": [{"filter": "datum.food == 'Sugar'"}],
+      "mark": {"type": "text", "align": "left", "baseline": "middle", "dy": -17, "dx": 14, "fontSize": 13, "fontWeight": 600, "color": "#5A5348"},
+      "encoding": {
+        "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
+        "x": {"field": "kg_2021_23", "type": "quantitative", "scale": {"domain": [0, 185]}},
+        "text": {"value": "Flour and sugar: hardly changed"}
+      }
+    }
+  ]
+}

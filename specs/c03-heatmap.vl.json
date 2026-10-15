@@ -1,0 +1,109 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Heatmap with one row per food group and one column per year from 2010 to 2023. The colour of each cell is the change in food energy available per person compared with 2010: blue means more, orange means less, white means no change. Fruit jumps in 2021 and eggs dip in 2019; most other groups drift slowly.",
+  "title": {
+    "text": ["Fruit jumped in 2021 and eggs dipped in 2019;", "most other food groups drifted slowly"],
+    "subtitle": [
+      "Change in food energy available per person compared with 2010, by food group (%).",
+      "Malaysia, 2010–2023. Source: FAO."
+    ]
+  },
+  "width": 1090,
+  "height": 470,
+  "autosize": {"type": "fit", "contains": "padding"},
+  "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
+  "data": {"url": "data/clean/food_heatmap.csv", "format": {"type": "csv", "parse": {"year": "number", "kcal_per_day": "number", "change_pct_vs_2010": "number", "change_pct_vs_previous_year": "number", "group_order": "number"}}},
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "axis": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#5A5348", "titleColor": "#5A5348",
+             "labelFontSize": 13, "titleFontSize": 13, "domainColor": "#D9D1C4", "tickColor": "#D9D1C4"},
+    "legend": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#5A5348", "titleColor": "#5A5348", "labelFontSize": 12, "titleFontSize": 12, "titleLimit": 300, "labelLimit": 300},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "layer": [
+    {
+      "description": "One cell per food group and year, coloured by change since 2010 (diverging around 0)",
+      "mark": {"type": "rect", "stroke": "#FBF8F3", "strokeWidth": 1.5, "opacity": 1},
+      "encoding": {
+        "x": {"field": "year", "type": "ordinal", "axis": {"title": null, "orient": "top", "labelAngle": 0, "ticks": false, "domain": false, "labelFontSize": 13}},
+        "y": {
+          "field": "food_group", "type": "nominal", "sort": {"field": "group_order", "op": "min", "order": "ascending"},
+          "axis": {"title": null, "ticks": false, "domain": false, "labelFontSize": 14, "labelColor": "#1F1B16", "labelPadding": 8, "labelLimit": 400}
+        },
+        "color": {
+          "field": "change_pct_vs_2010", "type": "quantitative",
+          "scale": {"domain": [-80, 0, 80], "range": ["#D55E00", "#F5F1EA", "#3A8FD6"], "clamp": true},
+          "legend": {
+            "orient": "bottom", "direction": "horizontal", "title": "Change since 2010 (%)",
+            "titleOrient": "left", "titleLimit": 420, "gradientLength": 320, "gradientThickness": 12, "titlePadding": 12,
+            "values": [-80, -40, 0, 40, 80], "labelExpr": "replace(format(datum.value, '+d'), '-', '−')"
+          }
+        },
+        "tooltip": [
+          {"field": "food_group", "type": "nominal", "title": "Food group"},
+          {"field": "year", "type": "ordinal", "title": "Year"},
+          {"field": "kcal_per_day", "type": "quantitative", "title": "Energy per person (kcal a day)", "format": ",.0f"},
+          {"field": "change_pct_vs_2010", "type": "quantitative", "title": "Change since 2010 (%)", "format": "+.0f"},
+          {"field": "change_pct_vs_previous_year", "type": "quantitative", "title": "Change since previous year (%)", "format": "+.0f"}
+        ]
+      }
+    },
+    {
+      "description": "Values written in the 2023 column, so the end point can be read without the colour scale",
+      "transform": [
+        {"filter": "datum.year == 2023"},
+        {"calculate": "replace(format(datum.change_pct_vs_2010, '+.0f'), '-', '−') + '%'", "as": "label"}
+      ],
+      "mark": {"type": "text", "fontSize": 12, "fontWeight": 600, "color": "#1F1B16"},
+      "encoding": {
+        "x": {"field": "year", "type": "ordinal"},
+        "y": {"field": "food_group", "type": "nominal", "sort": {"field": "group_order", "op": "min", "order": "ascending"}},
+        "text": {"field": "label", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Annotation 1: outline around fruit in 2021",
+      "transform": [{"filter": "datum.food_group == 'Fruit' && datum.year == 2021"}],
+      "mark": {"type": "rect", "fill": null, "stroke": "#1F1B16", "strokeWidth": 2.5},
+      "encoding": {
+        "x": {"field": "year", "type": "ordinal"},
+        "y": {"field": "food_group", "type": "nominal", "sort": {"field": "group_order", "op": "min", "order": "ascending"}}
+      }
+    },
+    {
+      "transform": [
+        {"filter": "datum.food_group == 'Fruit' && datum.year == 2021"},
+        {"calculate": "'Fruit +' + format(datum.change_pct_vs_previous_year, '.0f') + '% in one year: read single years with care'", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "right", "baseline": "middle", "dx": -44, "fontSize": 13, "fontWeight": 600, "color": "#1F1B16"},
+      "encoding": {
+        "x": {"field": "year", "type": "ordinal"},
+        "y": {"field": "food_group", "type": "nominal", "sort": {"field": "group_order", "op": "min", "order": "ascending"}},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Annotation 2: outline around eggs in 2019",
+      "transform": [{"filter": "datum.food_group == 'Eggs' && datum.year == 2019"}],
+      "mark": {"type": "rect", "fill": null, "stroke": "#1F1B16", "strokeWidth": 2.5},
+      "encoding": {
+        "x": {"field": "year", "type": "ordinal"},
+        "y": {"field": "food_group", "type": "nominal", "sort": {"field": "group_order", "op": "min", "order": "ascending"}}
+      }
+    },
+    {
+      "transform": [
+        {"filter": "datum.food_group == 'Eggs' && datum.year == 2019"},
+        {"calculate": "'Eggs ' + replace(format(datum.change_pct_vs_previous_year, '.0f'), '-', '−') + '% in 2019, then recovered'", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "right", "baseline": "middle", "dx": -44, "fontSize": 13, "fontWeight": 600, "color": "#1F1B16"},
+      "encoding": {
+        "x": {"field": "year", "type": "ordinal"},
+        "y": {"field": "food_group", "type": "nominal", "sort": {"field": "group_order", "op": "min", "order": "ascending"}},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    }
+  ]
+}

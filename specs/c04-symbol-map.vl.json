@@ -1,0 +1,170 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Proportional symbol map of paddy harvested in 2024. Each circle sits on a state and its area is the tonnes harvested. Peninsular Malaysia (left) and East Malaysia (right) are drawn side by side at the same scale so neither is tiny. Kedah's circle is the largest: it grows 38% of Malaysia's paddy.",
+  "title": {
+    "text": ["Kedah grows 38% of Malaysia's paddy"],
+    "subtitle": [
+      "Paddy harvested, tonnes, by state, 2024. Circle area shows weight.",
+      "Peninsular Malaysia (left) and East Malaysia (right) at the same scale. Source: DOSM."
+    ]
+  },
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "legend": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#5A5348", "titleColor": "#5A5348", "labelFontSize": 12, "titleFontSize": 12, "titleLimit": 300, "labelLimit": 300},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "autosize": {"type": "pad"},
+  "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
+  "spacing": 10,
+  "resolve": {"scale": {"size": "shared"}},
+  "hconcat": [
+    {
+      "description": "Peninsular Malaysia",
+      "width": 490,
+      "height": 440,
+      "projection": {"type": "conicEqualArea", "parallels": [2, 6], "rotate": [-109.6, 0, 0], "center": [-7.55, 3.95], "scale": 3300, "translate": [235, 220]},
+      "layer": [
+        {
+          "description": "State outlines",
+          "data": {"url": "data/clean/states.topojson", "format": {"type": "topojson", "feature": "peninsula"}},
+          "mark": {"type": "geoshape", "fill": "#ECE6DB", "stroke": "#FBF8F3", "strokeWidth": 1}
+        },
+        {
+          "description": "One circle per state: area = tonnes of paddy harvested in 2024",
+          "data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "share_of_malaysia_pct": "number", "label_lon": "number", "label_lat": "number"}}},
+          "transform": [{"filter": "datum.region == 'peninsula' && datum.production_t > 0"}],
+          "mark": {"type": "circle", "fill": "#00553F", "opacity": 0.78, "stroke": "#FBF8F3", "strokeWidth": 1.2},
+          "encoding": {
+            "longitude": {"field": "lon", "type": "quantitative"},
+            "latitude": {"field": "lat", "type": "quantitative"},
+            "size": {"field": "production_t", "type": "quantitative", "scale": {"type": "linear", "zero": true, "range": [0, 4200]}},
+            "tooltip": [
+              {"field": "state", "type": "nominal", "title": "State"},
+              {"field": "production_t", "type": "quantitative", "title": "Paddy harvested (tonnes)", "format": ",.0f"},
+              {"field": "share_of_malaysia_pct", "type": "quantitative", "title": "Share of Malaysia (%)", "format": ".1f"},
+              {"field": "planted_area_ha", "type": "quantitative", "title": "Paddy fields (hectares)", "format": ",.0f"}
+            ]
+          }
+        },
+        {
+          "description": "State names on the four biggest circles (label inside, to the left or to the right of the circle)",
+          "data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "share_of_malaysia_pct": "number", "label_lon": "number", "label_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.region == 'peninsula' && datum.production_t > 0"},
+            {"window": [{"op": "rank", "as": "size_rank"}], "sort": [{"field": "production_t", "order": "descending"}]},
+            {"filter": "datum.size_rank <= 4 && datum.label_side == 'right'"}
+          ],
+          "mark": {"type": "text", "align": "left", "baseline": "middle", "fontSize": 12, "fontWeight": 600, "color": "#1F1B16"},
+          "encoding": {
+            "longitude": {"field": "label_lon", "type": "quantitative"},
+            "latitude": {"field": "label_lat", "type": "quantitative"},
+            "text": {"field": "state", "type": "nominal"}
+          }
+        },
+        {
+          "data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "share_of_malaysia_pct": "number", "label_lon": "number", "label_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.region == 'peninsula' && datum.production_t > 0"},
+            {"window": [{"op": "rank", "as": "size_rank"}], "sort": [{"field": "production_t", "order": "descending"}]},
+            {"filter": "datum.size_rank <= 4 && datum.label_side == 'left'"}
+          ],
+          "mark": {"type": "text", "align": "right", "baseline": "middle", "fontSize": 12, "fontWeight": 600, "color": "#1F1B16"},
+          "encoding": {
+            "longitude": {"field": "label_lon", "type": "quantitative"},
+            "latitude": {"field": "label_lat", "type": "quantitative"},
+            "text": {"field": "state", "type": "nominal"}
+          }
+        },
+        {
+          "data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "share_of_malaysia_pct": "number", "label_lon": "number", "label_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.region == 'peninsula' && datum.production_t > 0"},
+            {"window": [{"op": "rank", "as": "size_rank"}], "sort": [{"field": "production_t", "order": "descending"}]},
+            {"filter": "datum.size_rank <= 4 && datum.label_side == 'inside'"}
+          ],
+          "mark": {"type": "text", "align": "center", "baseline": "middle", "fontSize": 12, "fontWeight": 600, "color": "#FFFFFF"},
+          "encoding": {
+            "longitude": {"field": "lon", "type": "quantitative"},
+            "latitude": {"field": "lat", "type": "quantitative"},
+            "text": {"field": "state", "type": "nominal"}
+          }
+        },
+        {
+          "description": "Annotation: leader line from Kedah to the note in the sea",
+          "data": {"url": "data/clean/map_annotations.csv", "format": {"type": "csv", "parse": {"anchor_lon": "number", "anchor_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.chart == 'C4'"},
+            {"lookup": "state", "from": {"data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "share_of_malaysia_pct": "number", "label_lon": "number", "label_lat": "number"}}}, "key": "state", "fields": ["lon", "lat", "share_of_malaysia_pct"]}, "as": ["state_lon", "state_lat", "share"]}
+          ],
+          "mark": {"type": "rule", "stroke": "#00553F", "strokeWidth": 1.5},
+          "encoding": {
+            "longitude": {"field": "state_lon", "type": "quantitative"},
+            "latitude": {"field": "state_lat", "type": "quantitative"},
+            "longitude2": {"field": "anchor_lon"},
+            "latitude2": {"field": "anchor_lat"}
+          }
+        },
+        {
+          "description": "Annotation: why Kedah matters",
+          "data": {"url": "data/clean/map_annotations.csv", "format": {"type": "csv", "parse": {"anchor_lon": "number", "anchor_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.chart == 'C4'"},
+            {"lookup": "state", "from": {"data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "share_of_malaysia_pct": "number", "label_lon": "number", "label_lat": "number"}}}, "key": "state", "fields": ["share_of_malaysia_pct"]}, "as": ["share"]},
+            {"calculate": "[datum.state + ' grows ' + format(datum.share, '.0f') + '%', 'of Malaysia\\'s paddy:', 'one state, over a third']", "as": "note"}
+          ],
+          "mark": {"type": "text", "align": "left", "baseline": "middle", "dx": 6, "fontSize": 13, "fontWeight": 600, "lineHeight": 16, "color": "#00553F"},
+          "encoding": {
+            "longitude": {"field": "anchor_lon", "type": "quantitative"},
+            "latitude": {"field": "anchor_lat", "type": "quantitative"},
+            "text": {"field": "note", "type": "nominal"}
+          }
+        }
+      ]
+    },
+    {
+      "description": "East Malaysia (Sabah, Sarawak, W.P. Labuan)",
+      "width": 580,
+      "height": 440,
+      "projection": {"type": "conicEqualArea", "parallels": [2, 6], "rotate": [-109.6, 0, 0], "center": [4.85, 4.1], "scale": 3300, "translate": [290, 220]},
+      "layer": [
+        {
+          "data": {"url": "data/clean/states.topojson", "format": {"type": "topojson", "feature": "east"}},
+          "mark": {"type": "geoshape", "fill": "#ECE6DB", "stroke": "#FBF8F3", "strokeWidth": 1}
+        },
+        {
+          "description": "One circle per state: area = tonnes of paddy harvested in 2024. This layer carries the size legend.",
+          "data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "share_of_malaysia_pct": "number", "label_lon": "number", "label_lat": "number"}}},
+          "transform": [{"filter": "datum.region == 'east' && datum.production_t > 0"}],
+          "mark": {"type": "circle", "fill": "#00553F", "opacity": 0.78, "stroke": "#FBF8F3", "strokeWidth": 1.2},
+          "encoding": {
+            "longitude": {"field": "lon", "type": "quantitative"},
+            "latitude": {"field": "lat", "type": "quantitative"},
+            "size": {
+              "field": "production_t", "type": "quantitative", "scale": {"type": "linear", "zero": true, "range": [0, 4200]},
+              "legend": {"title": "Paddy harvested (tonnes)", "format": ",.0f", "orient": "none", "legendX": 8, "legendY": 290, "symbolFillColor": "#00553F", "symbolOpacity": 0.78, "values": [100000, 400000, 800000], "padding": 6}
+            },
+            "tooltip": [
+              {"field": "state", "type": "nominal", "title": "State"},
+              {"field": "production_t", "type": "quantitative", "title": "Paddy harvested (tonnes)", "format": ",.0f"},
+              {"field": "share_of_malaysia_pct", "type": "quantitative", "title": "Share of Malaysia (%)", "format": ".1f"},
+              {"field": "planted_area_ha", "type": "quantitative", "title": "Paddy fields (hectares)", "format": ",.0f"}
+            ]
+          }
+        },
+        {
+          "description": "State names on the East Malaysia circles",
+          "data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "share_of_malaysia_pct": "number", "label_lon": "number", "label_lat": "number"}}},
+          "transform": [{"filter": "datum.region == 'east' && datum.production_t > 0"}],
+          "mark": {"type": "text", "align": "left", "baseline": "middle", "fontSize": 12, "fontWeight": 600, "color": "#1F1B16"},
+          "encoding": {
+            "longitude": {"field": "label_lon", "type": "quantitative"},
+            "latitude": {"field": "label_lat", "type": "quantitative"},
+            "text": {"field": "state", "type": "nominal"}
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Connected scatterplot of Malaysia's paddy: planted area (horizontal) against yield in tonnes per hectare (vertical), one point per year from 2014 to 2024 joined in time order. The path ends lower and further left: fewer fields and lower yields, each about 15% below 2014.",
+  "title": {
+    "text": ["Fewer fields and lower yields each cost", "about 15% of the harvest"],
+    "subtitle": [
+      "Paddy fields (thousand hectares) and yield (tonnes per hectare),",
+      "one point per year, joined in time order. Malaysia, 2014–2024. Source: DOSM."
+    ]
+  },
+  "width": 520,
+  "height": 420,
+  "autosize": {"type": "fit", "contains": "padding"},
+  "padding": {"left": 4, "right": 12, "top": 4, "bottom": 4},
+  "data": {"url": "data/clean/paddy_national.csv", "format": {"type": "csv", "parse": {"year": "number", "planted_area_ha": "number", "production_t": "number", "yield_t_ha": "number", "area_change_pct_vs_2014": "number", "yield_change_pct_vs_2014": "number"}}},
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "axis": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#5A5348", "titleColor": "#5A5348",
+             "labelFontSize": 13, "titleFontSize": 13, "domainColor": "#D9D1C4", "tickColor": "#D9D1C4", "gridColor": "#ECE6DB"},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "layer": [
+    {
+      "description": "The path through the years",
+      "mark": {"type": "line", "strokeWidth": 2.5, "color": "#00553F", "strokeCap": "round", "strokeJoin": "round"},
+      "encoding": {
+        "x": {"field": "planted_area_ha", "type": "quantitative", "scale": {"zero": false, "domain": [560000, 720000]},
+              "axis": {"title": "Paddy fields (thousand hectares)", "labelExpr": "format(datum.value / 1000, ',.0f')", "values": [580000, 620000, 660000, 700000], "grid": true}},
+        "y": {"field": "yield_t_ha", "type": "quantitative", "scale": {"zero": false, "domain": [3.2, 4.5]},
+              "axis": {"title": "Yield (tonnes per hectare)", "format": ".1f", "values": [3.4, 3.6, 3.8, 4.0, 4.2, 4.4], "grid": true, "domain": false, "ticks": false}},
+        "order": {"field": "year", "type": "quantitative"}
+      }
+    },
+    {
+      "description": "One point per year",
+      "mark": {"type": "circle", "size": 55, "color": "#00553F", "opacity": 1, "stroke": "#FBF8F3", "strokeWidth": 1},
+      "encoding": {
+        "x": {"field": "planted_area_ha", "type": "quantitative", "scale": {"zero": false, "domain": [560000, 720000]}},
+        "y": {"field": "yield_t_ha", "type": "quantitative", "scale": {"zero": false, "domain": [3.2, 4.5]}},
+        "tooltip": [
+          {"field": "year", "type": "ordinal", "title": "Year"},
+          {"field": "planted_area_ha", "type": "quantitative", "title": "Paddy fields (hectares)", "format": ",.0f"},
+          {"field": "yield_t_ha", "type": "quantitative", "title": "Yield (tonnes per hectare)", "format": ".2f"},
+          {"field": "production_t", "type": "quantitative", "title": "Harvest (tonnes)", "format": ",.0f"}
+        ]
+      }
+    },
+    {
+      "description": "Annotation 1: where the path starts",
+      "transform": [
+        {"joinaggregate": [{"op": "min", "field": "year", "as": "first_year"}]},
+        {"filter": "datum.year == datum.first_year"},
+        {"calculate": "[datum.year + ': where it started', format(datum.planted_area_ha / 1000, ',.0f') + ' thousand ha,', format(datum.yield_t_ha, '.1f') + ' t/ha']", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "right", "baseline": "middle", "dx": -12, "fontSize": 12.5, "fontWeight": 600, "color": "#1F1B16", "lineHeight": 15},
+      "encoding": {
+        "x": {"field": "planted_area_ha", "type": "quantitative", "scale": {"zero": false, "domain": [560000, 720000]}},
+        "y": {"field": "yield_t_ha", "type": "quantitative", "scale": {"zero": false, "domain": [3.2, 4.5]}},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Annotation 2: where it ends, and what changed since 2014",
+      "transform": [
+        {"joinaggregate": [{"op": "max", "field": "year", "as": "last_year"}]},
+        {"filter": "datum.year == datum.last_year"},
+        {"calculate": "[datum.year + ': ' + format(datum.planted_area_ha / 1000, ',.0f') + ' thousand ha, ' + format(datum.yield_t_ha, '.1f') + ' t/ha', 'Since 2014: fields ' + replace(format(datum.area_change_pct_vs_2014, '.0f'), '-', '−') + '%, yield ' + replace(format(datum.yield_change_pct_vs_2014, '.0f'), '-', '−') + '%']", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "left", "baseline": "top", "dx": -6, "dy": 12, "fontSize": 12.5, "fontWeight": 600, "color": "#00553F", "lineHeight": 15},
+      "encoding": {
+        "x": {"field": "planted_area_ha", "type": "quantitative", "scale": {"zero": false, "domain": [560000, 720000]}},
+        "y": {"field": "yield_t_ha", "type": "quantitative", "scale": {"zero": false, "domain": [3.2, 4.5]}},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Larger marker on the last year",
+      "transform": [
+        {"joinaggregate": [{"op": "max", "field": "year", "as": "last_year"}]},
+        {"filter": "datum.year == datum.last_year"}
+      ],
+      "mark": {"type": "circle", "size": 150, "color": "#00553F", "opacity": 1, "stroke": "#FBF8F3", "strokeWidth": 1.5},
+      "encoding": {
+        "x": {"field": "planted_area_ha", "type": "quantitative", "scale": {"zero": false, "domain": [560000, 720000]}},
+        "y": {"field": "yield_t_ha", "type": "quantitative", "scale": {"zero": false, "domain": [3.2, 4.5]}}
+      }
+    }
+  ]
+}

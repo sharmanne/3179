@@ -1,0 +1,13 @@
+Boundary file: how data/clean/states.topojson was made (mapshaper 0.7.86, the tool used in the Week 8 studio)
+
+  mapshaper data/raw/administrative_1_state.geojson ^
+    -each "region = [12,13,15].indexOf(code_state) > -1 ? 'east' : 'peninsula'" ^
+    -filter-fields state,code_state,region ^
+    -simplify visvalingam 10% keep-shapes ^
+    -split region ^
+    -o data/clean/states.topojson format=topojson quantization=10000
+
+  region "east"      = Sabah (12), Sarawak (13), W.P. Labuan (15)
+  region "peninsula" = the other 13 states and territories
+  Result: 24 KB (the original GeoJSON is 392 KB). "keep-shapes" stops small states from disappearing.
+  Two TopoJSON objects, "peninsula" and "east", let each part of Malaysia get its own map panel.

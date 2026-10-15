@@ -1,0 +1,270 @@
+/* ==========================================================================
+   Less rice, more milk  |  FIT3179 Data Visualisation 2
+   Plain CSS. No frameworks. Layout "B" (centre spine), as in the design brief.
+   Sections:  1 Tokens · 2 Base · 3 Layout grid · 4 Hero · 5 Story sections ·
+              6 Chart slots · 7 Footer · 8 Narrow screens
+   ========================================================================== */
+
+/* ---------- 1. DESIGN TOKENS ---------------------------------------------- */
+:root {
+  /* Colour. Checked for contrast and for colour-vision deficiency (see README).
+     Roles are locked in the design brief: ONE accent for rice and paddy,
+     blue = more, orange = less, greys = context. Never reuse a role for something else. */
+  --c-bg:           #FBF8F3;  /* page paper (warm off-white)                  */
+  --c-surface:      #F3EEE5;  /* panels, placeholders, footer                 */
+  --c-border:       #D9D1C4;  /* hairlines                                    */
+  --c-text:         #1F1B16;  /* body text, 16.2:1 on page                    */
+  --c-text-muted:   #5A5348;  /* secondary text, 7.2:1 on page                */
+  --c-grey-100:     #ECE6DB;
+  --c-grey-300:     #CFC8BB;
+  --c-grey-500:     #A9A296;  /* context marks (non-essential detail)         */
+  --c-grey-700:     #6F695F;
+  --c-accent:       #00553F;  /* rice and paddy: deep paddy teal, 8.4:1       */
+  --c-accent-tint:  #DCEBE5;
+  --c-more:         #3A8FD6;  /* "more" in charts, 3.3:1                      */
+  --c-less:         #D55E00;  /* "less" in charts, 3.7:1                      */
+  --c-todo:         #FFF1A8;  /* temporary highlight for placeholders         */
+
+  /* Typefaces. Headings: Fraunces. Body: Source Sans 3. */
+  --font-head: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+
+  /* Type scale (about 1.25 steps). Body is 18 px, never below 16 px. */
+  --step--2: 0.8125rem;  /* 13 px: tags only                */
+  --step--1: 0.875rem;   /* 14 px: chart captions           */
+  --step-0:  1.125rem;   /* 18 px: body                     */
+  --step-1:  1.375rem;   /* 22 px: lead text, small heads   */
+  --step-2:  clamp(1.5rem, 1.1rem + 1.3vw, 2rem);        /* section headlines */
+  --step-3:  clamp(2.25rem, 1.6rem + 2.6vw, 3.5rem);     /* big numbers       */
+  --step-4:  clamp(2.75rem, 1.9rem + 3.6vw, 4.75rem);    /* page title        */
+  --lh-body: 1.55;
+  --lh-head: 1.15;
+  --measure: 56ch;       /* caps body lines at about 58 to 71 characters (measured). 62ch gave up to 79. */
+
+  /* Spacing scale (4 px base). */
+  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;
+  --space-4: 1rem;     --space-5: 1.5rem;  --space-6: 2rem;
+  --space-7: 3rem;     --space-8: 4.5rem;  --space-9: 7rem;
+
+  /* Layout. */
+  --content-max: 1100px;
+  --page-pad: clamp(1rem, 3vw, 1.5rem);
+  --gutter:   clamp(1rem, 2.2vw, 1.5rem);
+  --radius:   6px;
+}
+
+/* ---------- 2. BASE ------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font: 400 var(--step-0) / var(--lh-body) var(--font-body);
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 { font-family: var(--font-head); font-weight: 600; line-height: var(--lh-head); margin: 0; }
+p { margin: 0 0 var(--space-4); }
+ul, ol { margin: 0 0 var(--space-4); padding-left: 1.25em; }
+li { margin-bottom: var(--space-2); }
+img, svg, canvas { max-width: 100%; }
+
+a { color: var(--c-accent); text-decoration-thickness: 0.08em; text-underline-offset: 0.2em; overflow-wrap: anywhere; }
+a:hover { text-decoration-thickness: 0.14em; }
+:focus-visible { outline: 3px solid var(--c-more); outline-offset: 3px; }
+
+.skip-link {
+  position: absolute; left: var(--space-4); top: -4rem;
+  background: var(--c-text); color: var(--c-bg); padding: var(--space-2) var(--space-4); z-index: 10;
+}
+.skip-link:focus { top: var(--space-3); }
+
+/* Temporary yellow marker for things you must replace. Delete the class when done. */
+.todo { background: var(--c-todo); color: var(--c-text); padding: 0 0.25em; border-radius: 2px; }
+
+/* Body copy: never wider than the measure, left-aligned. */
+.prose { max-width: var(--measure); }
+.prose p:last-child { margin-bottom: 0; }
+
+/* ---------- 3. LAYOUT GRID (12 columns) ----------------------------------- */
+.container {
+  width: min(100% - 2 * var(--page-pad), var(--content-max));
+  margin-inline: auto;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+}
+.grid > * { min-width: 0; }           /* lets long words and URLs wrap instead of widening the page */
+
+.col-spine { grid-column: 4 / span 6; }   /* the reading spine: columns 4 to 9  */
+.col-wide  { grid-column: 3 / span 8; }   /* wide spine: columns 3 to 10        */
+.col-full  { grid-column: 1 / -1; }       /* full width: columns 1 to 12        */
+
+/* ---------- 4. HERO ------------------------------------------------------- */
+.hero { padding-block: var(--space-8) var(--space-7); }
+
+.hero__eyebrow {
+  margin-bottom: var(--space-4);
+  font-size: var(--step--1); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+.hero__title {
+  font-size: var(--step-4); font-weight: 700; line-height: 1.02; letter-spacing: -0.015em;
+  margin-bottom: var(--space-3);
+}
+.hero__subtitle {
+  font-family: var(--font-head); font-size: var(--step-1); font-weight: 400; color: var(--c-text-muted);
+  margin-bottom: var(--space-5);
+}
+.hero__promise { font-size: var(--step-1); line-height: 1.35; font-weight: 600; margin-bottom: var(--space-3); }
+.hero__byline  { font-size: var(--step--1); color: var(--c-text-muted); margin-bottom: var(--space-6); }
+.hero__intro   { margin-bottom: var(--space-6); }
+
+.hero__lead {
+  border-left: 4px solid var(--c-accent);
+  padding-left: var(--space-4);
+  margin-bottom: var(--space-7);
+}
+.hero__lead-label {
+  margin: 0 0 var(--space-2);
+  font-size: var(--step--1); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-accent);
+}
+.hero__lead-text { margin: 0; font-family: var(--font-head); font-size: var(--step-1); line-height: 1.35; font-weight: 600; }
+
+/* Three big numbers across the full width. */
+.stats {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter);
+  margin: 0 0 var(--space-5); padding: 0;
+}
+.stat { margin: 0; padding-top: var(--space-3); border-top: 4px solid var(--c-grey-500); }
+.stat--accent { border-top-color: var(--c-accent); }
+.stat--more   { border-top-color: var(--c-more); }
+.stat__label  { font-size: var(--step-0); font-weight: 600; }
+.stat__value  { margin: 0; font-family: var(--font-head); font-size: var(--step-3); font-weight: 700; line-height: 1.05; margin-block: var(--space-1); }
+.stat--accent .stat__value { color: var(--c-accent); }
+.stat--more .stat__value   { color: #1F6DAF; }   /* darker blue for text: 5.1:1 (the chart blue is for marks) */
+.stat__period { margin: 0; font-size: var(--step--1); color: var(--c-text-muted); }
+
+.hero__sources { font-size: var(--step--1); color: var(--c-text-muted); margin: 0; }
+
+/* ---------- 5. STORY SECTIONS --------------------------------------------- */
+.story { padding-block: var(--space-8); border-top: 1px solid var(--c-border); }
+
+/* Rows 1 to 3 are fixed so the margin notes sit level with the text; charts flow after them. */
+.story__kicker { grid-row: 1; margin-bottom: var(--space-3);
+  font-size: var(--step--1); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-text-muted); }
+.story__num {
+  display: inline-block; min-width: 2.2em; margin-right: var(--space-2); padding: 0.2em 0.5em;
+  background: var(--c-text); color: var(--c-bg); border-radius: 999px; text-align: center; letter-spacing: 0.04em;
+}
+.story__title { grid-row: 2; font-size: var(--step-2); margin-bottom: var(--space-5); }
+.story .prose { grid-row: 3; }
+
+/* Margin notes explain a term the first time it appears. */
+.note {
+  grid-row: 3; align-self: start; max-width: var(--measure);
+  padding-top: var(--space-2); border-top: 2px solid var(--c-text);
+  font-size: 1rem; line-height: 1.45; color: var(--c-text-muted);
+}
+.note p { margin: 0 0 var(--space-2); }
+.note__term { color: var(--c-text); font-weight: 700; }
+.note--left  { grid-column: 1 / span 3; }
+.note--right { grid-column: 10 / span 3; }
+
+/* ---------- 6. CHART SLOTS ------------------------------------------------ */
+.chart { margin: var(--space-7) 0 0; }
+.chart--full  { grid-column: 1 / -1; }
+.chart--spine { grid-column: 4 / span 6; }
+
+.chart__frame { position: relative; min-height: var(--chart-h, 380px); }
+.chart__canvas { width: 100%; }
+.chart__canvas:empty { display: none; }
+/* Charts are drawn at a fixed design size. Vega gives each SVG a viewBox, so on a narrower screen the whole chart
+   (text included) scales down together, and nothing is ever wider than its column. */
+.chart__canvas .vega-embed { display: block; width: 100%; }
+.chart__canvas .vega-embed svg { display: block; max-width: 100%; height: auto; }
+
+/* Labelled placeholder: shown until a spec loads, then hidden by main.js. */
+.chart__placeholder {
+  min-height: var(--chart-h, 380px);
+  display: flex; flex-direction: column; justify-content: center; gap: var(--space-2);
+  padding: var(--space-5);
+  border: 2px dashed var(--c-grey-500); border-radius: var(--radius);
+  background-color: var(--c-surface);
+  background-image: repeating-linear-gradient(135deg, transparent 0 12px, rgba(31, 27, 22, 0.04) 12px 13px);
+}
+.chart.is-loaded .chart__placeholder { display: none; }
+.chart.is-loaded .chart__frame { min-height: 0; }
+.chart__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }
+.tag {
+  display: inline-block; padding: 0.3em 0.7em; border: 1px solid var(--c-grey-700); border-radius: 999px;
+  font-size: var(--step--2); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--c-text-muted);
+}
+.tag--id  { background: var(--c-text); border-color: var(--c-text); color: var(--c-bg); }
+.tag--adv { background: var(--c-grey-100); color: var(--c-text); }
+.chart__idiom    { margin: var(--space-2) 0 0; font-family: var(--font-head); font-size: var(--step-1); font-weight: 600; line-height: 1.25; }
+.chart__question { margin: 0; max-width: var(--measure); }
+.chart__spec     { margin: var(--space-2) 0 0; font-family: var(--font-mono); font-size: var(--step--1); color: var(--c-text-muted); overflow-wrap: anywhere; }
+.chart__status   { margin: 0; font-size: var(--step--1); font-weight: 600; color: var(--c-text-muted); }
+.chart.has-error .chart__status { color: #8A3A00; }   /* dark orange text: 6.8:1 */
+
+.chart__caption { margin-top: var(--space-3); font-size: var(--step--1); line-height: 1.4; color: var(--c-text-muted); max-width: var(--measure); }
+
+/* Closing box (section 6). */
+.caveats {
+  grid-column: 3 / span 8; margin-top: var(--space-7);
+  padding: var(--space-5) var(--space-6);
+  background: var(--c-surface); border-left: 4px solid var(--c-text); border-radius: 0 var(--radius) var(--radius) 0;
+}
+.caveats h3 { font-size: var(--step-1); margin-bottom: var(--space-4); }
+.caveats ul { margin: 0; max-width: var(--measure); }
+
+/* Shown by main.js if the page is opened from a file instead of a server. */
+.page-banner {
+  position: sticky; top: 0; z-index: 20; margin: 0; padding: var(--space-3) var(--page-pad);
+  background: var(--c-todo); color: var(--c-text); font-size: var(--step--1); border-bottom: 1px solid var(--c-grey-500);
+}
+
+/* ---------- 7. FOOTER ----------------------------------------------------- */
+.site-footer { background: var(--c-surface); border-top: 1px solid var(--c-border); padding-block: var(--space-8) var(--space-7); font-size: 1rem; }
+.site-footer__title { font-size: var(--step-2); margin-bottom: var(--space-6); }
+.footer-block { margin-bottom: var(--space-6); }
+.footer-block h3 { font-size: var(--step-1); margin-bottom: var(--space-3); }
+.footer-block p, .footer-block li { max-width: var(--measure); }
+.sources li { margin-bottom: var(--space-4); }
+.todo-block { padding: var(--space-3) var(--space-4); border: 2px dashed var(--c-grey-700); border-radius: var(--radius); }
+
+/* ---------- 8. NARROW SCREENS (stack everything) -------------------------- */
+@media (max-width: 960px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .col-spine, .col-wide, .col-full,
+  .chart--full, .chart--spine, .caveats,
+  .note--left, .note--right { grid-column: 1 / -1; }
+  .story__kicker, .story__title, .story .prose, .note { grid-row: auto; }
+
+  .note { border-top: 0; border-left: 3px solid var(--c-grey-500); padding: 0 0 0 var(--space-3); margin-bottom: var(--space-4); }
+  .stats { grid-template-columns: minmax(0, 1fr); }
+  .hero { padding-block: var(--space-7) var(--space-6); }
+  .story { padding-block: var(--space-7); }
+  .caveats { padding: var(--space-4); }
+}
+
+/* Chart controls drawn by Vega-Lite (the "Show:" buttons under the C5 dot map) */
+.chart__canvas .vega-bindings {
+  margin-top: 0.75rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--c-text);
+}
+.chart__canvas .vega-bind { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; }
+.chart__canvas .vega-bind-name { font-weight: 600; }
+.chart__canvas .vega-bind-radio { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; }
+.chart__canvas .vega-bind-radio label { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2rem; cursor: pointer; }
+.chart__canvas .vega-bind-radio input { width: 1.1rem; height: 1.1rem; accent-color: var(--c-accent); }

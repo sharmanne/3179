@@ -1,0 +1,168 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Choropleth map of paddy yield in 2024: tonnes of paddy harvested per hectare of field, by state. Values are divided by field area so big states do not look high just because they are big. Darker green is a higher yield, in half-tonne steps. Pulau Pinang (4.8 t/ha) gets 2.6 times more per hectare than Sarawak (1.9 t/ha). Grey states grow no paddy or have no data.",
+  "title": {
+    "text": ["Pulau Pinang gets 2.6 times more paddy", "per hectare than Sarawak"],
+    "subtitle": [
+      "Paddy harvested per hectare of field, tonnes per hectare, by state, 2024.",
+      "Shades step up in half-tonne bands. Peninsular and East Malaysia at the same scale. Source: DOSM."
+    ]
+  },
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "legend": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#1F1B16", "titleColor": "#5A5348", "labelFontSize": 12.5, "titleFontSize": 12, "titleLimit": 300, "labelLimit": 300},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "autosize": {"type": "pad"},
+  "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
+  "spacing": 10,
+  "resolve": {"scale": {"color": "shared"}},
+  "hconcat": [
+    {
+      "description": "Peninsular Malaysia",
+      "width": 490,
+      "height": 440,
+      "projection": {"type": "conicEqualArea", "parallels": [2, 6], "rotate": [-109.6, 0, 0], "center": [-7.55, 3.95], "scale": 3300, "translate": [235, 220]},
+      "layer": [
+        {
+          "description": "Every state in light grey first: states with no paddy (or no data) stay grey",
+          "data": {"url": "data/clean/states.topojson", "format": {"type": "topojson", "feature": "peninsula"}},
+          "mark": {"type": "geoshape", "fill": "#E4DED2", "stroke": "#FBF8F3", "strokeWidth": 1}
+        },
+        {
+          "description": "States that grow paddy, coloured by yield",
+          "data": {"url": "data/clean/states.topojson", "format": {"type": "topojson", "feature": "peninsula"}},
+          "transform": [
+            {"lookup": "properties.state", "from": {"data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "yield_t_ha": "number"}}}, "key": "state", "fields": ["state", "yield_t_ha", "production_t", "planted_area_ha"]}},
+            {"filter": "isValid(datum.yield_t_ha)"}
+          ],
+          "params": [{"name": "hover_pen", "select": {"type": "point", "fields": ["state"], "on": "mouseover", "clear": "mouseout"}}],
+          "mark": {"type": "geoshape", "strokeWidth": 1},
+          "encoding": {
+            "color": {
+              "field": "yield_t_ha", "type": "quantitative",
+              "scale": {"type": "threshold", "domain": [3.0, 3.5, 4.0, 4.5], "range": ["#E3EFEA", "#B3D3C5", "#6AAA92", "#2E7D63", "#00553F"]}
+            },
+            "stroke": {"condition": {"param": "hover_pen", "empty": false, "value": "#1F1B16"}, "value": "#FBF8F3"},
+            "strokeWidth": {"condition": {"param": "hover_pen", "empty": false, "value": 2.5}, "value": 1},
+            "tooltip": [
+              {"field": "state", "type": "nominal", "title": "State"},
+              {"field": "yield_t_ha", "type": "quantitative", "title": "Paddy per hectare (tonnes)", "format": ".2f"},
+              {"field": "production_t", "type": "quantitative", "title": "Paddy harvested (tonnes)", "format": ",.0f"},
+              {"field": "planted_area_ha", "type": "quantitative", "title": "Paddy fields (hectares)", "format": ",.0f"}
+            ]
+          }
+        },
+        {
+          "description": "Annotation leader line",
+          "data": {"url": "data/clean/map_annotations.csv", "format": {"type": "csv", "parse": {"anchor_lon": "number", "anchor_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.chart == 'C8' && datum.region == 'peninsula'"},
+            {"lookup": "state", "from": {"data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "yield_t_ha": "number"}}}, "key": "state", "fields": ["lon", "lat"]}, "as": ["state_lon", "state_lat"]}
+          ],
+          "mark": {"type": "rule", "stroke": "#1F1B16", "strokeWidth": 1.2},
+          "encoding": {
+            "longitude": {"field": "state_lon", "type": "quantitative"},
+            "latitude": {"field": "state_lat", "type": "quantitative"},
+            "longitude2": {"field": "anchor_lon"},
+            "latitude2": {"field": "anchor_lat"}
+          }
+        },
+        {
+          "description": "Annotation: the highest-yield state",
+          "data": {"url": "data/clean/map_annotations.csv", "format": {"type": "csv", "parse": {"anchor_lon": "number", "anchor_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.chart == 'C8' && datum.region == 'peninsula'"},
+            {"lookup": "state", "from": {"data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "yield_t_ha": "number"}}}, "key": "state", "fields": ["yield_t_ha"]}, "as": ["yield"]},
+            {"calculate": "[datum.state + ':', format(datum.yield, '.1f') + ' t per hectare,', 'the highest yield']", "as": "note"}
+          ],
+          "mark": {"type": "text", "align": "left", "baseline": "middle", "dx": 6, "fontSize": 13, "fontWeight": 600, "lineHeight": 16, "color": "#00553F"},
+          "encoding": {
+            "longitude": {"field": "anchor_lon", "type": "quantitative"},
+            "latitude": {"field": "anchor_lat", "type": "quantitative"},
+            "text": {"field": "note", "type": "nominal"}
+          }
+        }
+      ]
+    },
+    {
+      "description": "East Malaysia (Sabah, Sarawak, W.P. Labuan)",
+      "width": 580,
+      "height": 440,
+      "projection": {"type": "conicEqualArea", "parallels": [2, 6], "rotate": [-109.6, 0, 0], "center": [4.85, 4.1], "scale": 3300, "translate": [290, 220]},
+      "layer": [
+        {
+          "data": {"url": "data/clean/states.topojson", "format": {"type": "topojson", "feature": "east"}},
+          "mark": {"type": "geoshape", "fill": "#E4DED2", "stroke": "#FBF8F3", "strokeWidth": 1}
+        },
+        {
+          "description": "States that grow paddy, coloured by yield. This layer carries the legend.",
+          "data": {"url": "data/clean/states.topojson", "format": {"type": "topojson", "feature": "east"}},
+          "transform": [
+            {"lookup": "properties.state", "from": {"data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "yield_t_ha": "number"}}}, "key": "state", "fields": ["state", "yield_t_ha", "production_t", "planted_area_ha"]}},
+            {"filter": "isValid(datum.yield_t_ha)"}
+          ],
+          "params": [{"name": "hover_east", "select": {"type": "point", "fields": ["state"], "on": "mouseover", "clear": "mouseout"}}],
+          "mark": {"type": "geoshape", "strokeWidth": 1},
+          "encoding": {
+            "color": {
+              "field": "yield_t_ha", "type": "quantitative",
+              "scale": {"type": "threshold", "domain": [3.0, 3.5, 4.0, 4.5], "range": ["#E3EFEA", "#B3D3C5", "#6AAA92", "#2E7D63", "#00553F"]},
+              "legend": {"title": "Tonnes of paddy per hectare", "orient": "none", "legendX": 8, "legendY": 4, "symbolType": "square", "symbolSize": 160, "padding": 6, "format": ".1f"}
+            },
+            "stroke": {"condition": {"param": "hover_east", "empty": false, "value": "#1F1B16"}, "value": "#FBF8F3"},
+            "strokeWidth": {"condition": {"param": "hover_east", "empty": false, "value": 2.5}, "value": 1},
+            "tooltip": [
+              {"field": "state", "type": "nominal", "title": "State"},
+              {"field": "yield_t_ha", "type": "quantitative", "title": "Paddy per hectare (tonnes)", "format": ".2f"},
+              {"field": "production_t", "type": "quantitative", "title": "Paddy harvested (tonnes)", "format": ",.0f"},
+              {"field": "planted_area_ha", "type": "quantitative", "title": "Paddy fields (hectares)", "format": ",.0f"}
+            ]
+          }
+        },
+        {
+          "description": "Annotation leader line",
+          "data": {"url": "data/clean/map_annotations.csv", "format": {"type": "csv", "parse": {"anchor_lon": "number", "anchor_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.chart == 'C8' && datum.region == 'east'"},
+            {"lookup": "state", "from": {"data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "yield_t_ha": "number"}}}, "key": "state", "fields": ["lon", "lat"]}, "as": ["state_lon", "state_lat"]}
+          ],
+          "mark": {"type": "rule", "stroke": "#1F1B16", "strokeWidth": 1.2},
+          "encoding": {
+            "longitude": {"field": "state_lon", "type": "quantitative"},
+            "latitude": {"field": "state_lat", "type": "quantitative"},
+            "longitude2": {"field": "anchor_lon"},
+            "latitude2": {"field": "anchor_lat"}
+          }
+        },
+        {
+          "description": "Annotation: the lowest-yield state",
+          "data": {"url": "data/clean/map_annotations.csv", "format": {"type": "csv", "parse": {"anchor_lon": "number", "anchor_lat": "number"}}},
+          "transform": [
+            {"filter": "datum.chart == 'C8' && datum.region == 'east'"},
+            {"lookup": "state", "from": {"data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"lon": "number", "lat": "number", "planted_area_ha": "number", "production_t": "number", "yield_t_ha": "number"}}}, "key": "state", "fields": ["yield_t_ha"]}, "as": ["yield"]},
+            {"calculate": "[datum.state + ': ' + format(datum.yield, '.1f') + ' t per hectare,', 'the lowest yield']", "as": "note"}
+          ],
+          "mark": {"type": "text", "align": "left", "baseline": "middle", "dx": 6, "fontSize": 13, "fontWeight": 600, "lineHeight": 16, "color": "#9A4400"},
+          "encoding": {
+            "longitude": {"field": "anchor_lon", "type": "quantitative"},
+            "latitude": {"field": "anchor_lat", "type": "quantitative"},
+            "text": {"field": "note", "type": "nominal"}
+          }
+        },
+        {
+          "description": "Key for the grey areas",
+          "data": {"values": [{"lon": 119.3, "lat": 1.45, "t": "Grey: no paddy grown (Labuan, Kuala Lumpur)"}, {"lon": 119.3, "lat": 1.05, "t": "or no data (Putrajaya)"}]},
+          "mark": {"type": "text", "align": "right", "baseline": "middle", "fontSize": 12, "color": "#5A5348"},
+          "encoding": {
+            "longitude": {"field": "lon", "type": "quantitative"},
+            "latitude": {"field": "lat", "type": "quantitative"},
+            "text": {"field": "t", "type": "nominal"}
+          }
+        }
+      ]
+    }
+  ]
+}
