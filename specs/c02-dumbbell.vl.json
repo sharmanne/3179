@@ -8,9 +8,9 @@
       "Average of 2010–12 compared with 2021–23. Source: FAO."
     ]
   },
-  "width": 520,
+  "width": "container",
   "height": 440,
-  "autosize": {"type": "fit", "contains": "padding"},
+  "autosize": {"type": "fit-x", "contains": "padding"},
   "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
   "data": {"url": "data/clean/food_change.csv", "format": {"type": "csv", "parse": {"kg_2010_12": "number", "kg_2021_23": "number", "change_kg": "number", "change_pct": "number", "sort_order": "number"}}},
   "config": {
