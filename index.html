@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Less rice, more milk</title>
+  <meta name="description" content="How the Malaysian plate has changed since 2010, and what it means for the paddy fields that feed it. Built with Vega-Lite for FIT3179 Data Visualisation 2.">
+  <meta name="author" content="[YOUR FULL NAME]">
+
+  <!-- Typefaces: Fraunces (headings) + Source Sans 3 (body). Both are free under the SIL Open Font Licence. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Chart libraries: exact versions pinned to the ones used in the unit's studios and tested in this project. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/vega@5.22.1"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.8"></script>
+  <script defer src="js/main.js"></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to the story</a>
+
+  <!-- ===================================================== HERO ===================================================== -->
+  <header class="hero">
+    <div class="container grid">
+      <p class="hero__eyebrow col-spine">Cooking and Baking &middot; FIT3179 Data Visualisation 2</p>
+      <h1 class="hero__title col-spine">Less rice, more milk</h1>
+      <p class="hero__subtitle col-spine">The changing Malaysian plate</p>
+      <p class="hero__promise col-spine">Eleven charts, six findings, one question: do we still grow what we eat?</p>
+      <p class="hero__byline col-spine">By <mark class="todo">[YOUR FULL NAME]</mark> &middot; <time><mark class="todo">[DATE]</mark></time></p>
+
+      <div class="hero__intro prose col-spine">
+        <p>Rice is still at the centre of many Malaysian meals. But the numbers behind our plates are shifting: rice supplies a smaller slice of our calories, while milk and eggs supply a larger one. Scroll down to see what changed, where our food grows, and why the paddy harvest for each person is shrinking.</p>
+      </div>
+
+      <div class="hero__lead col-spine">
+        <p class="hero__lead-label">The short version</p>
+        <p class="hero__lead-text">Malaysians now get fewer calories from rice and more from milk and eggs than in 2010, while the paddy harvested per person has fallen by a third since 2014.</p>
+      </div>
+
+      <dl class="stats col-full" aria-label="Three headline numbers">
+        <div class="stat stat--accent">
+          <dt class="stat__label">Rice per person</dt>
+          <dd class="stat__value">&minus;15%</dd>
+          <dd class="stat__period">Average of 2010&ndash;12 compared with 2021&ndash;23</dd>
+        </div>
+        <div class="stat stat--more">
+          <dt class="stat__label">Milk per person</dt>
+          <dd class="stat__value">+75%</dd>
+          <dd class="stat__period">Same years</dd>
+        </div>
+        <div class="stat stat--accent">
+          <dt class="stat__label">Paddy harvested per person</dt>
+          <dd class="stat__value">&minus;33%</dd>
+          <dd class="stat__period">2014 compared with 2023</dd>
+        </div>
+      </dl>
+      <p class="hero__sources col-spine">Sources: FAO (food available per person) and DOSM (paddy harvest). Full details are in each section and in the footer.</p>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ============================================ S1 · HOOK ============================================ -->
+    <section class="story" id="s1" aria-labelledby="s1-title">
+      <div class="container grid">
+        <p class="story__kicker col-spine"><span class="story__num">S1</span> Hook</p>
+        <h2 class="story__title col-spine" id="s1-title">Rice now supplies fewer than 1 in 4 calories, down from nearly 3 in 10</h2>
+
+        <!-- DRAFT TEXT: replace with your own wording -->
+        <div class="prose col-spine">
+          <p>FAO, the United Nations food agency, estimates how much food energy is available to each person in Malaysia every day. In 2010, rice supplied about 30 of every 100 calories. By 2023 it supplied about 24.</p>
+        </div>
+        <aside class="note note--left">
+          <p class="note__term">Calories available per person</p>
+          <p>FAO&rsquo;s estimate of the food available for people to eat in a country, divided by its population. It is not a measure of what people actually eat.</p>
+        </aside>
+        <aside class="note note--right">
+          <p class="note__term">FAO</p>
+          <p>The Food and Agriculture Organization of the United Nations.</p>
+        </aside>
+
+        <figure class="chart chart--full is-placeholder" id="chart-c1"
+                data-chart="C1" data-spec="specs/c01-plate.vl.json" data-height="546">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C1</span><span class="tag tag--adv">Advanced</span></p>
+              <p class="chart__idiom">Plate: a dot (waffle) chart laid out as a dinner plate, 2010 beside 2023</p>
+              <p class="chart__question">Which food groups give us our food energy, and how did the split change?</p>
+              <p class="chart__spec">specs/c01-plate.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: FAO, Food Balances (2010&ndash;2023). Each dot is 1% of the day&rsquo;s food energy.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ======================================== S2 · WHAT CHANGED ======================================== -->
+    <section class="story" id="s2" aria-labelledby="s2-title">
+      <div class="container grid">
+        <p class="story__kicker col-spine"><span class="story__num">S2</span> What changed</p>
+        <h2 class="story__title col-spine" id="s2-title">Since 2010 Malaysians eat 15% less rice and 75% more milk</h2>
+
+        <!-- DRAFT TEXT: replace with your own wording -->
+        <div class="prose col-spine">
+          <p>Comparing the average of 2010&ndash;12 with the average of 2021&ndash;23, the food available per person shows about 15% less rice and about 75% more milk. Eggs are up about 40% and fruit about 34%, while fish is down about 11%. Flour and sugar have hardly changed.</p>
+        </div>
+        <aside class="note note--left">
+          <p class="note__term">Three-year average</p>
+          <p>A single year can jump up or down, so we compare the average of three years at the start with three years at the end.</p>
+        </aside>
+        <aside class="note note--right">
+          <p class="note__term">Kilograms per person</p>
+          <p>The weight of a food available to each person over one year.</p>
+        </aside>
+
+        <figure class="chart chart--spine is-placeholder" id="chart-c2"
+                data-chart="C2" data-spec="specs/c02-dumbbell.vl.json" data-height="440">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C2</span><span class="tag tag--adv">Advanced</span></p>
+              <p class="chart__idiom">Connected dot plot (dumbbell): two periods per food</p>
+              <p class="chart__question">Which foods did we eat more or less of, and by how much?</p>
+              <p class="chart__spec">specs/c02-dumbbell.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: FAO, Food Balances (2010&ndash;2023).</figcaption>
+        </figure>
+
+        <figure class="chart chart--full is-placeholder" id="chart-c3"
+                data-chart="C3" data-spec="specs/c03-heatmap.vl.json" data-height="470">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C3</span><span class="tag tag--adv">Advanced</span></p>
+              <p class="chart__idiom">Heatmap: food group by year</p>
+              <p class="chart__question">When did each food group move: steadily, or in sudden jumps?</p>
+              <p class="chart__spec">specs/c03-heatmap.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: FAO, Food Balances (2010&ndash;2023). Change in food energy per person compared with 2010.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===================================== S3 · WHERE FOOD GROWS ===================================== -->
+    <section class="story" id="s3" aria-labelledby="s3-title">
+      <div class="container grid">
+        <p class="story__kicker col-spine"><span class="story__num">S3</span> Context: where our food grows</p>
+        <h2 class="story__title col-spine" id="s3-title">Kedah grows 38% of our paddy, and Pahang grows 45% of our vegetables</h2>
+
+        <!-- DRAFT TEXT: replace with your own wording -->
+        <div class="prose col-spine">
+          <p>Four states grew 72% of the 2024 paddy harvest, and Kedah alone grew 38%. Pahang grew 45% of the vegetables, and Johor grew 39% of the fruit.</p>
+        </div>
+        <aside class="note note--left">
+          <p class="note__term">Hectare and tonne</p>
+          <p>A hectare is 10,000 square metres (100 m by 100 m). A tonne is 1,000 kilograms.</p>
+        </aside>
+        <aside class="note note--right">
+          <p class="note__term">Paddy</p>
+          <p>Rice as it is harvested, still in its husk, before milling.</p>
+        </aside>
+
+        <figure class="chart chart--spine is-placeholder" id="chart-c6"
+                data-chart="C6" data-spec="specs/c06-lollipop.vl.json" data-height="380">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C6</span><span class="tag tag--adv">Advanced</span></p>
+              <p class="chart__idiom">Lollipop chart: harvest by crop group, 2024</p>
+              <p class="chart__question">How big is each crop group&rsquo;s harvest next to the others?</p>
+              <p class="chart__spec">specs/c06-lollipop.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: DOSM, Crop Area and Production by State (2024).</figcaption>
+        </figure>
+
+        <figure class="chart chart--full is-placeholder" id="chart-c4"
+                data-chart="C4" data-spec="specs/c04-symbol-map.vl.json" data-height="541">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C4</span><span class="tag tag--adv">Advanced &middot; map</span></p>
+              <p class="chart__idiom">Proportional symbol map: paddy harvest by state, 2024</p>
+              <p class="chart__question">Where is Malaysia&rsquo;s rice bowl?</p>
+              <p class="chart__spec">specs/c04-symbol-map.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: DOSM, Crop Area and Production by State (2024); state boundaries from DOSM. Peninsular and East Malaysia are drawn side by side at the same scale, so they are not in their true positions. Circle area is proportional to tonnes harvested.</figcaption>
+        </figure>
+
+        <figure class="chart chart--full is-placeholder" id="chart-c5"
+                data-chart="C5" data-spec="specs/c05-dot-map.vl.json" data-height="590">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C5</span><span class="tag tag--adv">Advanced &middot; map</span></p>
+              <p class="chart__idiom">Dot map: vegetables, fruit and coconut, 2024 (1 dot = 5,000 tonnes)</p>
+              <p class="chart__question">Where do our vegetables, fruit and coconuts grow?</p>
+              <p class="chart__spec">specs/c05-dot-map.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: DOSM, Crop Area and Production by State (2024). Dots are placed at random inside each state; they do not show farms. Peninsular and East Malaysia are drawn side by side at the same scale.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ======================================== S4 · SURPRISE ======================================== -->
+    <section class="story" id="s4" aria-labelledby="s4-title">
+      <div class="container grid">
+        <p class="story__kicker col-spine"><span class="story__num">S4</span> Surprise</p>
+        <h2 class="story__title col-spine" id="s4-title">We harvest a third less paddy per person than in 2014, but the rice on the plate fell only 3%</h2>
+
+        <!-- DRAFT TEXT: replace with your own wording -->
+        <div class="prose col-spine">
+          <p>Between 2014 and 2023 the paddy harvested for each person in Malaysia fell by about a third, from 93 kg to 62 kg. Yet the rice available per person fell by only 3%, from 121 kg to 118 kg.</p>
+        </div>
+        <aside class="note note--left">
+          <p class="note__term">Index (2014 = 100)</p>
+          <p>We set the 2014 value to 100 so two different measures can share one scale. A value of 67 means one-third lower than in 2014.</p>
+        </aside>
+        <aside class="note note--right">
+          <p class="note__term">Paddy is not rice</p>
+          <p>Milling removes the husk, so a tonne of paddy gives less than a tonne of rice. That is why we compare changes, not weights.</p>
+        </aside>
+
+        <figure class="chart chart--spine is-placeholder" id="chart-c7"
+                data-chart="C7" data-spec="specs/c07-index-lines.vl.json" data-height="380">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C7</span><span class="tag">Basic</span></p>
+              <p class="chart__idiom">Index line chart: paddy harvested vs rice available per person (2014 = 100)</p>
+              <p class="chart__question">Do we still grow as much rice as we eat?</p>
+              <p class="chart__spec">specs/c07-index-lines.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Sources: DOSM (paddy harvest) and FAO (rice available per person, and population). Two sources combined.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ========================================== S5 · WHY ========================================== -->
+    <section class="story" id="s5" aria-labelledby="s5-title">
+      <div class="container grid">
+        <p class="story__kicker col-spine"><span class="story__num">S5</span> Why it happened</p>
+        <h2 class="story__title col-spine" id="s5-title">Fewer fields and lower yields each cut about 15% off the harvest, and Kedah and Sarawak account for half of the loss</h2>
+
+        <!-- DRAFT TEXT: replace with your own wording -->
+        <div class="prose col-spine">
+          <p>Paddy fields shrank by about 15% between 2014 and 2024, and the harvest from each hectare fell by about 15% too. Together they cut the national harvest by 28%. Kedah and Sarawak account for about half of the tonnes lost.</p>
+        </div>
+        <aside class="note note--left">
+          <p class="note__term">Yield</p>
+          <p>Tonnes of paddy harvested from each hectare of field.</p>
+        </aside>
+        <aside class="note note--right">
+          <p class="note__term">Small states, big swings</p>
+          <p>Johor, Melaka and Negeri Sembilan grow very little paddy, so their yields can change a lot from year to year.</p>
+        </aside>
+
+        <figure class="chart chart--spine is-placeholder" id="chart-c9"
+                data-chart="C9" data-spec="specs/c09-connected-scatter.vl.json" data-height="420">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C9</span><span class="tag">Basic</span></p>
+              <p class="chart__idiom">Connected scatterplot: paddy fields (hectares) vs yield, 2014&ndash;2024</p>
+              <p class="chart__question">Did the harvest fall because of fewer fields or lower yields?</p>
+              <p class="chart__spec">specs/c09-connected-scatter.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: DOSM, Crop Area and Production by State (2014&ndash;2024).</figcaption>
+        </figure>
+
+        <figure class="chart chart--full is-placeholder" id="chart-c8"
+                data-chart="C8" data-spec="specs/c08-choropleth.vl.json" data-height="534">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C8</span><span class="tag tag--adv">Advanced &middot; map</span></p>
+              <p class="chart__idiom">Choropleth map: paddy yield by state, 2024 (tonnes per hectare)</p>
+              <p class="chart__question">Which states get the most paddy from each hectare?</p>
+              <p class="chart__spec">specs/c08-choropleth.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: DOSM, Crop Area and Production by State (2024); state boundaries from DOSM. Each state&rsquo;s paddy harvest is divided by its paddy field area, so large states do not look high just because they are large. Shades step up every half tonne per hectare (3.0, 3.5, 4.0, 4.5), so states in the same shade are within half a tonne of each other. Peninsular and East Malaysia are drawn side by side at the same scale. Grey: no paddy grown or no data.</figcaption>
+        </figure>
+
+        <figure class="chart chart--spine is-placeholder" id="chart-c10"
+                data-chart="C10" data-spec="specs/c10-dorling-cartogram.vl.json" data-height="582">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C10</span><span class="tag tag--adv">Advanced &middot; map</span></p>
+              <p class="chart__idiom">Dorling cartogram: change in paddy harvest by state, 2014 to 2024</p>
+              <p class="chart__question">Which states lost the most paddy harvest since 2014?</p>
+              <p class="chart__spec">specs/c10-dorling-cartogram.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: DOSM, Crop Area and Production by State (2014 and 2024). Circle area shows tonnes gained or lost.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ========================================== S6 · SO WHAT ========================================== -->
+    <section class="story" id="s6" aria-labelledby="s6-title">
+      <div class="container grid">
+        <p class="story__kicker col-spine"><span class="story__num">S6</span> So what</p>
+        <h2 class="story__title col-spine" id="s6-title">More than half of the crop land DOSM counts grows paddy, so what happens to rice farming matters</h2>
+
+        <!-- DRAFT TEXT: replace with your own wording -->
+        <div class="prose col-spine">
+          <p>Of the nine crop groups in DOSM&rsquo;s records, paddy takes up 53% of the planted land. Fruit uses about a third of the land that paddy does, yet its harvest weighs almost the same: 1.97 million tonnes against 2.06 million.</p>
+        </div>
+
+        <figure class="chart chart--spine is-placeholder" id="chart-c11"
+                data-chart="C11" data-spec="specs/c11-treemap.vl.json" data-height="536">
+          <div class="chart__frame">
+            <div class="chart__canvas"></div>
+            <div class="chart__placeholder">
+              <p class="chart__tags"><span class="tag tag--id">C11</span><span class="tag tag--adv">Advanced</span></p>
+              <p class="chart__idiom">Treemap: planted land by crop group, 2024</p>
+              <p class="chart__question">How much of Malaysia&rsquo;s crop land grows paddy?</p>
+              <p class="chart__spec">specs/c11-treemap.vl.json</p>
+              <p class="chart__status" role="status">Placeholder: chart not built yet.</p>
+            </div>
+          </div>
+          <figcaption class="chart__caption">Source: DOSM, Crop Area and Production by State (2024).</figcaption>
+        </figure>
+
+        <aside class="caveats" aria-labelledby="caveats-title">
+          <h3 id="caveats-title">What these numbers cannot tell you</h3>
+          <ul>
+            <li><strong>FAO figures are estimates.</strong> Every value for Malaysia is flagged as estimated or imputed.</li>
+            <li><strong>&ldquo;Available&rdquo; is not &ldquo;eaten&rdquo;.</strong> Some food is wasted, fed to animals or used in factories.</li>
+            <li><strong>Paddy is not rice.</strong> Milling removes the husk, so tonnes of paddy and tonnes of rice differ.</li>
+            <li><strong>Dots on the dot map are random.</strong> They are placed inside each state and do not show farms.</li>
+            <li><strong>Crop groups are broad,</strong> and small states can swing a lot from year to year.</li>
+            <li><strong>The two sources meet only by year,</strong> not by place: FAO is national, DOSM is by state.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================================================== FOOTER ===================================================== -->
+  <footer class="site-footer">
+    <div class="container grid">
+      <h2 class="site-footer__title col-wide">Sources, licences and credits</h2>
+
+      <section class="col-wide footer-block" aria-labelledby="f-about">
+        <h3 id="f-about">About this page</h3>
+        <p>Made for FIT3179 Data Visualisation 2, Monash University Malaysia, Semester 2, 2026. Topic: Cooking and Baking.</p>
+        <p>Author: <mark class="todo">[YOUR FULL NAME]</mark><br>
+           Date: <mark class="todo">[DATE OF FINAL VERSION]</mark></p>
+        <p>Licence for this page (optional): <mark class="todo">[CHOOSE A LICENCE, OR DELETE THIS LINE]</mark></p>
+      </section>
+
+      <section class="col-wide footer-block" aria-labelledby="f-data">
+        <h3 id="f-data">Data sources</h3>
+        <ol class="sources">
+          <li>
+            <strong>Food Balances (2010&ndash;)</strong>, FAOSTAT, Food and Agriculture Organization of the United Nations (FAO). Malaysia, 2010&ndash;2023.
+            <br><a href="https://www.fao.org/faostat/en/#data/FBS" rel="noopener">Dataset page</a> &middot;
+            <a href="https://bulks-faostat.fao.org/production/FoodBalanceSheets_E_All_Data_(Normalized).zip" rel="noopener">Bulk download (zip)</a>
+            <br>Licence: Creative Commons Attribution 4.0 (CC BY 4.0) plus FAO&rsquo;s <a href="https://www.fao.org/contact-us/terms/db-terms-of-use/en/" rel="noopener">database terms of use</a>. Retrieved: <mark class="todo">[DATE]</mark>.
+          </li>
+          <li>
+            <strong>Crop Area and Production by State</strong>, Department of Statistics Malaysia (DOSM), with the Department of Agriculture. 2014&ndash;2024.
+            <br><a href="https://open.dosm.gov.my/data-catalogue/crops_state" rel="noopener">Dataset page</a> &middot;
+            <a href="https://storage.data.gov.my/agriculture/crops_state.csv" rel="noopener">CSV file</a>
+            <br>Licence: Creative Commons Attribution 4.0 (CC BY 4.0). Retrieved: <mark class="todo">[DATE]</mark>.
+          </li>
+          <li>
+            <strong>State boundaries</strong> (map shapes), DOSM open data repository.
+            <br><a href="https://github.com/dosm-malaysia/data-open/tree/main/datasets/geodata" rel="noopener">Repository folder</a>
+            <br>Licence: DOSM Open Data Licence. Retrieved: <mark class="todo">[DATE]</mark>.
+          </li>
+        </ol>
+        <p>Figures on this page are calculated from these files. The cleaning steps are listed in <mark class="todo">[LINK TO DATA_SOURCES.md]</mark>.</p>
+      </section>
+
+      <section class="col-wide footer-block" aria-labelledby="f-ai">
+        <h3 id="f-ai">Use of artificial intelligence</h3>
+        <p class="todo-block"><mark class="todo">[TO FINALISE: acknowledge AI use in the wording Monash requires. State which tool you used and for what, for example code, chart specifications and draft text, and what you checked or wrote yourself. Keep a log of what the AI generated.]</mark></p>
+      </section>
+
+      <section class="col-wide footer-block" aria-labelledby="f-credits">
+        <h3 id="f-credits">Fonts and software</h3>
+        <p>Typefaces: Fraunces and Source Sans 3, loaded from Google Fonts under the SIL Open Font Licence. Charts: Vega 5.22.1, Vega-Lite 5.2.0 and vega-embed 6.20.8, loaded from jsDelivr.</p>
+      </section>
+    </div>
+  </footer>
+</body>
+</html>
