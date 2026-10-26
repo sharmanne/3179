@@ -8,9 +8,9 @@
       "one point per year, joined in time order. Malaysia, 2014–2024. Source: DOSM."
     ]
   },
-  "width": 520,
-  "height": 420,
-  "autosize": {"type": "fit", "contains": "padding"},
+  "width": "container",
+  "height": 480,
+  "autosize": {"type": "fit-x", "contains": "padding"},
   "padding": {"left": 4, "right": 12, "top": 4, "bottom": 4},
   "data": {"url": "data/clean/paddy_national.csv", "format": {"type": "csv", "parse": {"year": "number", "planted_area_ha": "number", "production_t": "number", "yield_t_ha": "number", "area_change_pct_vs_2014": "number", "yield_change_pct_vs_2014": "number"}}},
   "config": {
@@ -52,7 +52,7 @@
       "transform": [
         {"joinaggregate": [{"op": "min", "field": "year", "as": "first_year"}]},
         {"filter": "datum.year == datum.first_year"},
-        {"calculate": "[datum.year + ': where it started', format(datum.planted_area_ha / 1000, ',.0f') + ' thousand ha,', format(datum.yield_t_ha, '.1f') + ' t/ha']", "as": "note"}
+        {"calculate": "[datum.year + ': where it started', format(datum.planted_area_ha / 1000, ',.0f') + ' thousand hectares,', format(datum.yield_t_ha, '.1f') + ' tonnes per hectare']", "as": "note"}
       ],
       "mark": {"type": "text", "align": "right", "baseline": "middle", "dx": -12, "fontSize": 12.5, "fontWeight": 600, "color": "#1F1B16", "lineHeight": 15},
       "encoding": {
@@ -66,7 +66,7 @@
       "transform": [
         {"joinaggregate": [{"op": "max", "field": "year", "as": "last_year"}]},
         {"filter": "datum.year == datum.last_year"},
-        {"calculate": "[datum.year + ': ' + format(datum.planted_area_ha / 1000, ',.0f') + ' thousand ha, ' + format(datum.yield_t_ha, '.1f') + ' t/ha', 'Since 2014: fields ' + replace(format(datum.area_change_pct_vs_2014, '.0f'), '-', '−') + '%, yield ' + replace(format(datum.yield_change_pct_vs_2014, '.0f'), '-', '−') + '%']", "as": "note"}
+        {"calculate": "[datum.year + ': ' + format(datum.planted_area_ha / 1000, ',.0f') + ' thousand hectares, ' + format(datum.yield_t_ha, '.1f') + ' tonnes per hectare', 'Since 2014: fields ' + replace(format(datum.area_change_pct_vs_2014, '.0f'), '-', '−') + '%, yield ' + replace(format(datum.yield_change_pct_vs_2014, '.0f'), '-', '−') + '%']", "as": "note"}
       ],
       "mark": {"type": "text", "align": "left", "baseline": "top", "dx": -6, "dy": 12, "fontSize": 12.5, "fontWeight": 600, "color": "#00553F", "lineHeight": 15},
       "encoding": {

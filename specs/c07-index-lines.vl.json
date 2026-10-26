@@ -8,10 +8,10 @@
       "and rice available per person (FAO). Malaysia, 2014–2023."
     ]
   },
-  "width": 520,
-  "height": 380,
-  "autosize": {"type": "fit", "contains": "padding"},
-  "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
+  "width": "container",
+  "height": 420,
+  "autosize": {"type": "fit-x", "contains": "padding"},
+  "padding": {"left": 4, "right": 140, "top": 4, "bottom": 4},
   "data": {"url": "data/clean/paddy_vs_rice_per_person.csv", "format": {"type": "csv", "parse": {"year": "number", "kg_per_person": "number", "index_2014": "number"}}},
   "config": {
     "font": "Source Sans 3",
@@ -47,7 +47,7 @@
         "y": {"field": "index_2014", "type": "quantitative", "scale": {"domain": [60, 112], "zero": false},
               "axis": {"title": "Index (2014 = 100)", "values": [60, 70, 80, 90, 100], "grid": true, "domain": false, "ticks": false}},
         "color": {"field": "series_id", "type": "nominal", "legend": null,
-                  "scale": {"domain": ["paddy", "rice"], "range": ["#00553F", "#6F695F"]}}
+                  "scale": {"domain": ["paddy", "rice"], "range": ["#00553F", "#8F887C"]}}
       }
     },
     {
@@ -126,8 +126,8 @@
         "opacity": {"condition": {"param": "hover", "empty": false, "value": 0.35}, "value": 0},
         "tooltip": [
           {"field": "year", "type": "ordinal", "title": "Year"},
-          {"field": "paddy", "type": "quantitative", "title": "Paddy harvested per person (kg)", "format": ".1f"},
-          {"field": "rice", "type": "quantitative", "title": "Rice available per person (kg)", "format": ".1f"}
+          {"field": "paddy", "type": "quantitative", "title": "Paddy harvested per person (kilograms)", "format": ".1f"},
+          {"field": "rice", "type": "quantitative", "title": "Rice available per person (kilograms)", "format": ".1f"}
         ]
       }
     }

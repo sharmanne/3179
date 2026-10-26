@@ -8,9 +8,9 @@ Two independent sources are combined: **FAOSTAT Food Balances** (what food is av
 
 | # | Publisher / author | Title | URL | Date accessed | Licence | How it is used |
 |---|---|---|---|---|---|---|
-| 1 | Food and Agriculture Organization of the United Nations (FAO), FAOSTAT | Food Balances (2010-), "Food Balance Sheets", Malaysia, 2010 to 2023 | Dataset page: https://www.fao.org/faostat/en/#data/FBS<br>Bulk file: https://bulks-faostat.fao.org/production/FoodBalanceSheets_E_All_Data_(Normalized).zip | **[YOU: write the date you downloaded it]** | CC BY 4.0 plus FAO database terms of use: https://www.fao.org/contact-us/terms/db-terms-of-use/en/ | C1 plate, C2 dumbbell, C3 heatmap, and the rice and population series in C7 |
-| 2 | Department of Statistics Malaysia (DOSM), with the Department of Agriculture, published on the DOSM open data portal | Crop Area and Production by State (`crops_state`), 2014 to 2024 | Dataset page: https://open.dosm.gov.my/data-catalogue/crops_state<br>CSV: https://storage.data.gov.my/agriculture/crops_state.csv | **[YOU: write the date you downloaded it]** | CC BY 4.0 | C4 to C11 and the paddy series in C7 |
-| 3 | DOSM open data repository | State boundaries, `administrative_1_state.geojson` | https://github.com/dosm-malaysia/data-open/tree/main/datasets/geodata | **[YOU: write the date you downloaded it]** | DOSM Open Data Licence | Map shapes for C4, C5, C8 only. Contains no values. |
+| 1 | Food and Agriculture Organization of the United Nations (FAO), FAOSTAT | Food Balances (2010-), "Food Balance Sheets", Malaysia, 2010 to 2023 | Dataset page: https://www.fao.org/faostat/en/#data/FBS<br>Bulk file: https://bulks-faostat.fao.org/production/FoodBalanceSheets_E_All_Data_(Normalized).zip | 14/10/2026 | CC BY 4.0 plus FAO database terms of use: https://www.fao.org/contact-us/terms/db-terms-of-use/en/ | C1 plate, C2 dumbbell, C3 heatmap, and the rice and population series in C7 |
+| 2 | Department of Statistics Malaysia (DOSM), with the Department of Agriculture, published on the DOSM open data portal | Crop Area and Production by State (`crops_state`), 2014 to 2024 | Dataset page: https://open.dosm.gov.my/data-catalogue/crops_state<br>CSV: https://storage.data.gov.my/agriculture/crops_state.csv | 14/10/2026 | CC BY 4.0 | C4 to C11 and the paddy series in C7 |
+| 3 | DOSM open data repository | State boundaries, `administrative_1_state.geojson` | https://github.com/dosm-malaysia/data-open/tree/main/datasets/geodata | 14/10/2026 | DOSM Open Data Licence | Map shapes for C5 and C8 only (C4 is a tile grid map and needs no shapes). Contains no values. |
 
 Please check each licence on its own page before you submit. This table repeats what the dataset pages said when I read them; it is not legal advice.
 
@@ -36,7 +36,7 @@ data/clean/  everything the charts read; built from data/raw by scripts/prepare_
 3. **Parse dates.** DOSM `date` (for example `2024-01-01`) becomes the integer `year`.
 4. **Join.** DOSM paddy by year is joined to FAO population by year (C7). DOSM state names are joined to boundary names (maps).
 5. **Pre-aggregate.** Three-year averages (C2), shares of the day's food energy (C1), changes against 2010 (C3), state shares of Malaysia (C4, C5), yield (C8), changes 2014 to 2024 (C9, C10), shares of planted land (C11). Every formula is below.
-6. **Layout only.** The three charts that are drawn from screen positions (C1 plate, C10 Dorling cartogram, C11 treemap) and the C5 dots have their pixel positions worked out in the script, because Vega-Lite has no relaxation or treemap layout. These columns (`x`, `y`, `x0`…`y1`, `radius_px`, `size_px2`, `label_*`, `lon`/`lat` of dots) are positions, not data. The value shown by each shape is still the data value.
+6. **Layout only.** The charts that are drawn from screen positions (C1 plate, C4 tile grid map, C10 Dorling cartogram, C11 treemap) and the C5 dots have their pixel positions worked out in the script, because Vega-Lite has no tile, relaxation or treemap layout. These columns (`x`, `y`, `x0`…`y1`, `gx0`…`gy1`, `tile_*`, `circle_*`, `radius_px`, `size_px2`, `label_*`, `edge_*`, `lead_*`, `lon`/`lat` of dots) are positions, not data. The value shown by each shape is still the data value.
 7. **Format.** Numbers are written with 4 decimals. No source value is rounded, replaced or adjusted. The one exception to "exact": the C1 plate needs whole dots that add up to 100, so shares are turned into dots by the largest-remainder rule (a row can differ from its true share by under 1 point; both numbers are kept in `food_plate_summary.csv`).
 8. **Boundary simplification.** mapshaper, Visvalingam, 10% of points kept, `keep-shapes`, split into two objects (`peninsula`, `east`). 391,521 bytes become 23,754 bytes. Recipe: `scripts/make_boundaries.txt`.
 
@@ -54,7 +54,9 @@ data/clean/  everything the charts read; built from data/raw by scripts/prepare_
 | Index (2014 = 100) | Value ÷ value in 2014 × 100 | C7 |
 | Change in harvest | Production 2024 − production 2014, by state | C10 |
 | Share of net change | State change ÷ sum of all states' changes × 100 (the sum includes the two states that gained) | C10 |
-| Share of planted land | Planted area ÷ sum of the nine crop groups' planted areas × 100 | C11 |
+| Share of planted land | Crop group's planted area (the sum of its states) ÷ sum of all nine groups × 100. The state sums match the Malaysia row: paddy is 53.14% either way | C11 |
+| Share of a crop group's land | State's planted area ÷ the crop group's planted area × 100 | C11 (tooltip) |
+| Tile map circle size | Circle radius = k × √tonnes, so circle **area** is proportional to tonnes. k is chosen so that the largest harvest (Kedah) exactly fills the space in its square; the script checks that every circle fits inside its own square | C4 |
 
 Checks built into the script: the state rows add up to the national row (to rounding), and every FAO series has exactly 14 years.
 
@@ -64,21 +66,22 @@ Checks built into the script: the state rows add up to the national row (to roun
 |---|---|---|---|
 | `crop_harvest.csv` | 8 | 270 | crop_type, label, production_t |
 | `crop_dots.csv` | 792 | 35,405 | dot_id, crop, state, region, lon, lat |
+| `crop_harvest.csv` | 8 | 270 | crop_type, label, production_t |
 | `crop_top_states_2024.csv` | 3 | 234 | crop, state, region, production_t, share_pct, lon, lat |
 | `food_change.csv` | 12 | 750 | food, fao_item_code, kg_2010_12, kg_2021_23, change_kg, change_pct, direction, sort_order |
 | `food_heatmap.csv` | 168 | 6,984 | food_group, year, kcal_per_day, change_pct_vs_2010, change_pct_vs_previous_year, group_order |
 | `food_plate_cells.csv` | 200 | 11,723 | year, cell, x, y, group, group_order, share_pct, kcal_per_day |
 | `food_plate_rims.csv` | 2 | 84 | year, x, y, rim_size_px2, label_y |
 | `food_plate_summary.csv` | 9 | 619 | group, group_order, kcal_2010, kcal_2023, share_2010, share_2023, dots_2010, dots_2023, row_y |
-| `landuse_treemap.csv` | 9 | 868 | crop_type, label, planted_area_ha, production_t, share_pct, x0, y0, x1, y1, label_inside, label_lines |
-| `map_annotations.csv` | 5 | 220 | chart, state, region, anchor_lon, anchor_lat (where a note sits; its text is built from the data inside the spec) |
-| `paddy_by_state_2024.csv` | 15 | 1,649 | state, code_state, region, lon, lat, planted_area_ha, production_t, yield_t_ha, share_of_malaysia_pct, symbol_radius_px, label_side, label_lon, label_lat |
-| `paddy_change_by_state.csv` | 13 | 1,789 | state, production_2014_t, production_2024_t, change_t, change_pct, direction, share_of_net_change_pct, x, y, radius_px, size_px2, label_inside, label_x, label_y, label_align |
+| `landuse_treemap.csv` | 124 | 19,520 | crop_type, label, state, display_name, planted_area_ha, share_of_group_pct, group_area_ha, group_share_pct, group_production_t, x0, y0, x1, y1, gx0, gy0, gx1, gy1, group_label_lines, state_label |
+| `map_annotations.csv` | 4 | 186 | chart, state, region, anchor_lon, anchor_lat |
+| `paddy_by_state_2024.csv` | 15 | 2,068 | state, display_name, code_state, region, lon, lat, planted_area_ha, production_t, yield_t_ha, share_of_malaysia_pct, tile_col, tile_row, tile_x0, tile_y0, tile_x1, tile_y1, circle_x, circle_y, circle_radius_px |
+| `paddy_change_by_state.csv` | 13 | 2,278 | state, production_2014_t, production_2024_t, change_t, change_pct, direction, share_of_net_change_pct, x, y, radius_px, size_px2, label_inside, label_x, label_y, label_align, edge_x, edge_y, lead_x, lead_y |
 | `paddy_national.csv` | 11 | 799 | year, planted_area_ha, production_t, yield_t_ha, area_change_pct_vs_2014, yield_change_pct_vs_2014, harvest_change_pct_vs_2014 |
 | `paddy_vs_rice_per_person.csv` | 20 | 1,410 | year, series_id, series, kg_per_person, population, index_2014 |
 | `states.topojson` | 2 objects | 23,754 | state, code_state, region (boundaries only) |
 
-Page weight: `index.html` 27 KB, `css/style.css` 13 KB, `js/main.js` 8 KB, `specs/` 91 KB, `data/clean/` 87 KB; about 0.23 MB of our own files. The libraries (Vega, Vega-Lite, vega-embed) and the two typefaces come from CDNs. `data/raw/` (3.5 MB) is in the repository for the audit trail but the page never loads it.
+Page weight (measured 27/10/2026): about 0.25 MB of our own files (page, style sheet, script, 11 specifications and the clean data), plus about 0.25 MB of compressed chart libraries (Vega, Vega-Lite, vega-embed from jsDelivr) and 0.11 MB of fonts (Google Fonts): about 0.6 MB in total. `data/raw/` (3.5 MB) is in the repository for the audit trail but the page never loads it.
 
 ## 3. Spot checks: original file next to the cleaned file
 
@@ -100,6 +103,7 @@ Run `python scripts/check_claims.py` to recompute all 42 numbers quoted on the p
 - Every FAO value in this file carries a flag: 13,491 rows are `I` (imputed by FAO), 9,902 are `E` (estimated) and 14 are `X` (figures from other organisations, the population rows). The FAO figures are modelled estimates of **food available**, not food eaten. Food available per person is the national supply divided by the population, so it is higher than what a person actually eats.
 - The C7 chart divides DOSM paddy (unmilled rice, tonnes) by the FAO population. Paddy is not rice: milling removes the husk and bran, so rice weighs less than the paddy it comes from, and part of the rice available is imported. The chart compares **trends** (both indexed to 2014), not kilograms of rice.
 - DOSM "planted area" counts the area in the crop group for that year. DOSM flower production is not in tonnes, so flowers are left out of C6.
-- Maps: Peninsular and East Malaysia are drawn side by side at the same scale (conic equal-area projection, parallels 2° and 6° N, central meridian 109.6° E). The gap between them is not to scale.
+- Maps C5 and C8: one map each, in true positions, with the same conic equal-area projection (parallels 2° and 6° N, central meridian 109.6° E, scale 3000) and the same size (1080 × 430 pixels). An equal-area projection is needed because dot density (C5) and shaded area (C8) are read as area.
+- Map C4 is a tile grid map: every state is the same-sized square, placed roughly where it is. Square size says nothing about a state's area; only the circle inside it carries data. This was chosen so that every circle fits inside its own state (tiny Perlis and Pulau Pinang could not hold a readable circle on a true map).
 - C5 dots are random positions inside each state. They show how much, not where the farms are.
 - C10 circles are placed by a relaxation algorithm; they sit near their states but are not in their exact positions.

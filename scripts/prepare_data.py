@@ -33,10 +33,21 @@ PLATE_W, PLATE_H = 1000, 470
 PLATE_CENTRES = {2010: (190, 250), 2023: (810, 250)}
 PLATE_RIM_R = 162
 PLATE_FIRST_ROW_Y = 114          # y of the first row of the middle table (9 rows, 34 px apart, centred on the plates)
-DORLING_W, DORLING_H = 520, 470     # canvas; circles are kept inside the top DORLING_AREA_H pixels
+DORLING_W, DORLING_H = 1000, 470    # canvas; circles are kept inside the top DORLING_AREA_H pixels
 DORLING_AREA_H = 440
 DORLING_MAX_R = 60                 # radius in pixels of the biggest circle
 TREEMAP_W, TREEMAP_H = 520, 400
+# C4 tile grid map: one equal square per state, placed roughly where the state is (column, row)
+TILE_SIZE, TILE_GAP = 92, 8
+TILE_TOP, TILE_LEFT = 20, 8          # pixels of space above and to the left of the grid
+TILE_NAME_SPACE = 20                 # room at the top of each square for the state's name
+TILES = {"Perlis": (1, 0),
+         "Pulau Pinang": (0, 1), "Kedah": (1, 1), "Kelantan": (2, 1), "Terengganu": (3, 1),
+         "Perak": (1, 2), "Pahang": (2, 2),
+         "Selangor": (0, 3), "W.P. Kuala Lumpur": (1, 3), "Negeri Sembilan": (2, 3),
+         "Melaka": (1, 4), "Johor": (2, 4),
+         "W.P. Labuan": (5, 1), "Sabah": (6, 1), "Sarawak": (5, 2)}
+SHORT_NAMES = {"W.P. Kuala Lumpur": "Kuala Lumpur", "W.P. Labuan": "Labuan"}   # shown on the page without the "W.P." short form
 
 
 def write(df, name):
@@ -198,20 +209,28 @@ def build_crop_tables(crops, fao, states):
     p["yield_t_ha"] = np.where(p.planted_area > 0, p.production / p.planted_area, np.nan)
     p["share_of_malaysia_pct"] = 100 * p.production / p.production.sum()
     p = p.rename(columns={"planted_area": "planted_area_ha", "production": "production_t"})
-    # symbol size: the proportional symbol map gives the largest harvest an area of SYMBOL_MAX_PX2; label offsets use the radius
-    SYMBOL_MAX_PX2 = 4200
-    p["symbol_radius_px"] = np.sqrt(SYMBOL_MAX_PX2 * p.production_t / p.production_t.max() / math.pi)
-    side = {"Kedah": "inside", "Perlis": "left", "Pulau Pinang": "left", "Perak": "left", "Selangor": "left", "Negeri Sembilan": "left",
-            "Melaka": "left", "Kelantan": "right", "Terengganu": "right", "Pahang": "right", "Johor": "right", "Sabah": "right",
-            "Sarawak": "right", "W.P. Kuala Lumpur": "right", "W.P. Labuan": "right"}
-    p["label_side"] = p.state.map(side)
-    p["label_dx"] = np.where(p.label_side == "left", -(p.symbol_radius_px + 4), np.where(p.label_side == "right", p.symbol_radius_px + 4, 0.0))
-    PX_PER_DEGREE = 3300 * math.pi / 180                        # the maps use projection scale 3300 (about 58 px per degree)
-    p["label_lon"] = p.lon + p.label_dx / PX_PER_DEGREE         # label anchor = circle centre moved sideways by label_dx pixels
-    p["label_lat"] = p.lat
-    write(p[["state", "code_state", "region", "lon", "lat", "planted_area_ha", "production_t", "yield_t_ha",
-             "share_of_malaysia_pct", "symbol_radius_px", "label_side", "label_lon", "label_lat"]]
-          .round({"lon": 5, "lat": 5, "symbol_radius_px": 2, "label_lon": 5, "label_lat": 5}), "paddy_by_state_2024.csv")
+    # tile grid map (C4): each state is one equal square; the circle's AREA is proportional to tonnes and the
+    # biggest harvest gets the biggest circle that fits inside its square, so no circle can spill outside its state.
+    p["display_name"] = p.state.map(lambda n: SHORT_NAMES.get(n, n))
+    p["tile_col"] = p.state.map(lambda n: TILES[n][0])
+    p["tile_row"] = p.state.map(lambda n: TILES[n][1])
+    p["tile_x0"] = TILE_LEFT + p.tile_col * (TILE_SIZE + TILE_GAP)
+    p["tile_y0"] = TILE_TOP + p.tile_row * (TILE_SIZE + TILE_GAP)
+    p["tile_x1"] = p.tile_x0 + TILE_SIZE
+    p["tile_y1"] = p.tile_y0 + TILE_SIZE
+    room = (TILE_SIZE - TILE_NAME_SPACE) / 2 - 2                     # largest radius that fits below the name, 2 px margin
+    tile_k = room / math.sqrt(p.production_t.max())                  # pixels of radius per square root of a tonne
+    p["circle_x"] = (p.tile_x0 + p.tile_x1) / 2
+    p["circle_y"] = p.tile_y0 + TILE_NAME_SPACE + (TILE_SIZE - TILE_NAME_SPACE) / 2
+    p["circle_radius_px"] = tile_k * np.sqrt(p.production_t)
+    assert (p.circle_radius_px <= room + 1e-9).all(), "a circle does not fit inside its square"
+    print(f"  C4 tiles: largest circle radius {p.circle_radius_px.max():.1f} px fits a {room:.1f} px space")
+    write(p[["state", "display_name", "code_state", "region", "lon", "lat", "planted_area_ha", "production_t", "yield_t_ha",
+             "share_of_malaysia_pct", "tile_col", "tile_row", "tile_x0", "tile_y0", "tile_x1", "tile_y1",
+             "circle_x", "circle_y", "circle_radius_px"]]
+          .round({"lon": 5, "lat": 5, "circle_radius_px": 2}), "paddy_by_state_2024.csv")
+    # the size legend in the C4 spec must use the same pixels per tonne as the circles
+    print(f"  C4 size legend: for a scale domain of [0, 800000] use a size range of [0, {math.pi * tile_k ** 2 * 800000:.1f}] px^2")
 
     # --- dot map (C5): 1 dot = 5,000 tonnes, placed at random inside each state ---
     rng = np.random.RandomState(3179)
@@ -287,7 +306,7 @@ def build_crop_tables(crops, fao, states):
     mid_y = (max(p[1] for p in homes_proj) + min(p[1] for p in homes_proj)) / 2
     homes = []
     for (hx, hy), r in zip(homes_proj, reg):
-        x = 105 + (hx - min(pen_x)) * 3300 if r == "peninsula" else 360 + (hx - min(east_x)) * 3300 * 0.36
+        x = 230 + (hx - min(pen_x)) * 3300 if r == "peninsula" else 640 + (hx - min(east_x)) * 3300 * 1.0
         homes.append((x, DORLING_AREA_H / 2 - (hy - mid_y) * 3300))
     kk = DORLING_MAX_R / math.sqrt(d.change_t.abs().max())   # the biggest circle has a DORLING_MAX_R px radius
     radii = [kk * math.sqrt(abs(v)) for v in d.change_t]
@@ -296,30 +315,45 @@ def build_crop_tables(crops, fao, states):
     d["y"] = [p[1] for p in pos]
     d["radius_px"] = radii
     d["size_px2"] = [math.pi * r * r for r in radii]
-    d["label_inside"] = (d.radius_px >= 31).astype(int)
-    lx, ly, al = layouts.place_labels(list(d.x), list(d.y), radii, list(d.label_inside), list(d.state), DORLING_W, DORLING_AREA_H)
+    d["label_inside"] = 0      # every label sits just outside its circle, so all labels look the same
+    label_text = [max(name, f"{v:+,.0f} tonnes", key=len) for name, v in zip(d.state, d.change_t)]   # the wider of the two label lines
+    lx, ly, al = layouts.place_labels(list(d.x), list(d.y), radii, list(d.label_inside), label_text, DORLING_W, DORLING_AREA_H)
     d["label_x"], d["label_y"], d["label_align"] = lx, ly, al
+    ends = layouts.leader_ends(list(d.x), list(d.y), radii, lx, ly, al)
+    d["edge_x"], d["edge_y"], d["lead_x"], d["lead_y"] = [e[0] for e in ends], [e[1] for e in ends], [e[2] for e in ends], [e[3] for e in ends]
     write(d.round(2).assign(change_pct=d.change_pct, share_of_net_change_pct=d.share_of_net_change_pct), "paddy_change_by_state.csv")
 
-    # --- treemap (C11): planted land by crop group, Malaysia 2024 ---
-    t = nat[nat.year == 2024].copy().sort_values("planted_area", ascending=False).reset_index(drop=True)
+    # --- treemap (C11): planted land, Malaysia 2024, in two levels: crop group (parent) and state (child) ---
     tn = {"paddy": "Paddy", "fruits": "Fruit", "industrial_crops": "Industrial crops", "coconut": "Coconut",
           "vegetables": "Vegetables", "cash_crops": "Cash crops", "spices": "Spices", "flower": "Flowers", "herbs": "Herbs"}
-    t["label"] = t.crop_type.map(tn)
-    rects = layouts.squarify(list(t.planted_area), 0, 0, TREEMAP_W, TREEMAP_H)
-    t["x0"], t["y0"], t["x1"], t["y1"] = [r[0] for r in rects], [r[1] for r in rects], [r[2] for r in rects], [r[3] for r in rects]
-    t["share_pct"] = 100 * t.planted_area / t.planted_area.sum()
+    leaf = st[(st.year == 2024) & (st.planted_area > 0)][["crop_type", "state", "planted_area"]].copy()
+    groups = leaf.groupby("crop_type").planted_area.sum().sort_values(ascending=False)       # parent size = sum of its states
+    prod = nat[nat.year == 2024].set_index("crop_type").production                         # national harvest, for the labels
+    parents = layouts.squarify(list(groups.values), 0, 0, TREEMAP_W, TREEMAP_H)
+    total_land = groups.sum()
+    PAD = 1.5                                                                              # parent border, so groups read as blocks
+    rows = []
+    for (crop, area), (x0, y0, x1, y1) in zip(groups.items(), parents):
+        kids = leaf[leaf.crop_type == crop].sort_values("planted_area", ascending=False)
+        rects = layouts.squarify(list(kids.planted_area), x0 + PAD, y0 + PAD, (x1 - x0) - 2 * PAD, (y1 - y0) - 2 * PAD)
+        for (_, kr), (a0, b0, a1, b1) in zip(kids.iterrows(), rects):
+            rows.append({"crop_type": crop, "label": tn[crop], "state": kr.state, "display_name": SHORT_NAMES.get(kr.state, kr.state),
+                         "planted_area_ha": kr.planted_area, "share_of_group_pct": 100 * kr.planted_area / area,
+                         "group_area_ha": area, "group_share_pct": 100 * area / total_land,
+                         "group_production_t": (np.nan if crop == "flower" else prod[crop]),   # flower is not measured in tonnes
+                         "x0": a0, "y0": b0, "x1": a1, "y1": b1, "gx0": x0, "gy0": y0, "gx1": x1, "gy1": y1})
+    t = pd.DataFrame(rows)
+    gw, gh = t.gx1 - t.gx0, t.gy1 - t.gy0
+    t["group_label_lines"] = np.where((gw >= 190) & (gh >= 110), 3, np.where((gw >= 70) & (gh >= 34), 2, 0))   # 3 = name, share, harvest
     w, h = t.x1 - t.x0, t.y1 - t.y0
-    t["label_inside"] = ((w >= 78) & (h >= 40)).astype(int)
-    t["label_lines"] = np.where((w >= 150) & (h >= 100), 3, np.where(t.label_inside == 1, 2, 0))   # 3 = name, share, harvest
-    t = t.rename(columns={"planted_area": "planted_area_ha", "production": "production_t"})
-    t["production_t"] = np.where(t.crop_type == "flower", np.nan, t.production_t)    # flower is not measured in tonnes
-    write(t[["crop_type", "label", "planted_area_ha", "production_t", "share_pct", "x0", "y0", "x1", "y1", "label_inside", "label_lines"]]
-          .round({"x0": 2, "y0": 2, "x1": 2, "y1": 2}), "landuse_treemap.csv")
+    t["state_label"] = ((w >= 64) & (h >= 22) & (t.crop_type == "paddy")).astype(int)       # name the big paddy states only
+    write(t.round({c: 2 for c in ["x0", "y0", "x1", "y1", "gx0", "gy0", "gx1", "gy1"]}), "landuse_treemap.csv")
+    nat_share = 100 * nat[(nat.year == 2024) & (nat.crop_type == "paddy")].planted_area.iloc[0] / nat[nat.year == 2024].planted_area.sum()
+    print(f"  C11 check: paddy share of planted land, sum of states {100 * groups['paddy'] / total_land:.2f}%, Malaysia row {nat_share:.2f}%")
 
     # --- where each map annotation sits (layout only; the TEXT of every annotation is built from the data in the spec) ---
-    ann = [("C4", "Kedah", 103.68, 7.09), ("C5", "Pahang", 103.56, 5.18), ("C5", "Johor", 103.81, 1.12),
-           ("C8", "Pulau Pinang", 98.8, 2.7), ("C8", "Sarawak", 109.9, 1.45)]
+    ann = [("C5", "Pahang", 103.56, 5.18), ("C5", "Johor", 103.81, 1.12),
+           ("C8", "Pulau Pinang", 101.4, 7.05), ("C8", "Sarawak", 111.3, 4.6)]
     write(pd.DataFrame([{"chart": c, "state": s, "region": info[s]["region"], "anchor_lon": lo, "anchor_lat": la}
                         for c, s, lo, la in ann]), "map_annotations.csv")
 

@@ -6,15 +6,14 @@
     "text": ["Kedah and Sarawak account for half", "of the paddy harvest lost"],
     "subtitle": [
       "Change in paddy harvested, tonnes, 2014 to 2024.",
-      "Circle area shows the size of the change. Circles sit",
-      "roughly where each state is. Source: DOSM."
+      "Circle area shows the size of the change. Circles sit roughly where each state is. Source: DOSM."
     ]
   },
-  "width": 520,
+  "width": 1000,
   "height": 470,
   "autosize": {"type": "none"},
   "padding": {"left": 4, "right": 4, "top": 108, "bottom": 4},
-  "data": {"url": "data/clean/paddy_change_by_state.csv", "format": {"type": "csv", "parse": {"production_2014_t": "number", "production_2024_t": "number", "change_t": "number", "change_pct": "number", "share_of_net_change_pct": "number", "x": "number", "y": "number", "size_px2": "number", "label_inside": "number", "label_x": "number", "label_y": "number"}}},
+  "data": {"url": "data/clean/paddy_change_by_state.csv", "format": {"type": "csv", "parse": {"production_2014_t": "number", "production_2024_t": "number", "change_t": "number", "change_pct": "number", "share_of_net_change_pct": "number", "x": "number", "y": "number", "size_px2": "number", "label_inside": "number", "label_x": "number", "label_y": "number", "edge_x": "number", "edge_y": "number", "lead_x": "number", "lead_y": "number"}}},
   "config": {
     "font": "Source Sans 3",
     "view": {"stroke": null},
@@ -27,7 +26,7 @@
       "params": [{"name": "hover", "select": {"type": "point", "fields": ["state"], "on": "mouseover", "clear": "mouseout"}}],
       "mark": {"type": "circle", "opacity": 0.92},
       "encoding": {
-        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [0, 520]}, "axis": null},
+        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
         "y": {"field": "y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
         "size": {"field": "size_px2", "type": "quantitative", "scale": null, "legend": null},
         "color": {"field": "direction", "type": "nominal", "legend": null,
@@ -44,40 +43,37 @@
       }
     },
     {
-      "description": "Labels inside the big circles: name and change in tonnes",
-      "transform": [
-        {"filter": "datum.label_inside == 1"},
-        {"calculate": "[datum.state, replace(format(datum.change_t, '+,.0f'), '-', '−') + ' t']", "as": "text_lines"}
-      ],
-      "mark": {"type": "text", "align": "center", "baseline": "middle", "fontSize": 12.5, "fontWeight": 600, "lineHeight": 15, "color": "#1F1B16"},
+      "description": "Thin leader line from the edge of each circle to its label, so every label clearly belongs to one circle",
+      "mark": {"type": "rule", "stroke": "#5A5348", "strokeWidth": 1},
       "encoding": {
-        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [0, 520]}},
-        "y": {"field": "y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
-        "text": {"field": "text_lines", "type": "nominal"}
+        "x": {"field": "edge_x", "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "x2": {"field": "lead_x"},
+        "y": {"field": "edge_y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "y2": {"field": "lead_y"}
       }
     },
     {
-      "description": "Labels beside the small circles (right-hand side)",
+      "description": "Labels beside the circles (right-hand side)",
       "transform": [
-        {"filter": "datum.label_inside == 0 && datum.label_align == 'left'"},
-        {"calculate": "[datum.state, replace(format(datum.change_t, '+,.0f'), '-', '−') + ' t']", "as": "text_lines"}
+        {"filter": "datum.label_align == 'left'"},
+        {"calculate": "[datum.state, replace(format(datum.change_t, '+,.0f'), '-', '−') + ' tonnes']", "as": "text_lines"}
       ],
       "mark": {"type": "text", "align": "left", "baseline": "middle", "fontSize": 12, "lineHeight": 14, "color": "#1F1B16"},
       "encoding": {
-        "x": {"field": "label_x", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "x": {"field": "label_x", "type": "quantitative", "scale": {"domain": [0, 1000]}},
         "y": {"field": "label_y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
         "text": {"field": "text_lines", "type": "nominal"}
       }
     },
     {
-      "description": "Labels beside the small circles (left-hand side)",
+      "description": "Labels beside the circles (left-hand side)",
       "transform": [
-        {"filter": "datum.label_inside == 0 && datum.label_align == 'right'"},
-        {"calculate": "[datum.state, replace(format(datum.change_t, '+,.0f'), '-', '−') + ' t']", "as": "text_lines"}
+        {"filter": "datum.label_align == 'right'"},
+        {"calculate": "[datum.state, replace(format(datum.change_t, '+,.0f'), '-', '−') + ' tonnes']", "as": "text_lines"}
       ],
       "mark": {"type": "text", "align": "right", "baseline": "middle", "fontSize": 12, "lineHeight": 14, "color": "#1F1B16"},
       "encoding": {
-        "x": {"field": "label_x", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "x": {"field": "label_x", "type": "quantitative", "scale": {"domain": [0, 1000]}},
         "y": {"field": "label_y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
         "text": {"field": "text_lines", "type": "nominal"}
       }
@@ -87,7 +83,7 @@
       "data": {"values": [{"t": "Harvest fell", "y": 18, "d": "lost"}, {"t": "Harvest rose", "y": 40, "d": "gained"}]},
       "mark": {"type": "circle", "size": 130, "opacity": 0.92},
       "encoding": {
-        "x": {"datum": 330, "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "x": {"datum": 800, "type": "quantitative", "scale": {"domain": [0, 1000]}},
         "y": {"field": "y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
         "color": {"field": "d", "type": "nominal", "legend": null, "scale": {"domain": ["lost", "gained"], "range": ["#D55E00", "#3A8FD6"]}}
       }
@@ -96,7 +92,7 @@
       "data": {"values": [{"t": "Harvest fell", "y": 18}, {"t": "Harvest rose", "y": 40}]},
       "mark": {"type": "text", "align": "left", "baseline": "middle", "dx": 14, "fontSize": 13, "color": "#1F1B16"},
       "encoding": {
-        "x": {"datum": 330, "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "x": {"datum": 800, "type": "quantitative", "scale": {"domain": [0, 1000]}},
         "y": {"field": "y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
         "text": {"field": "t", "type": "nominal"}
       }
@@ -111,7 +107,7 @@
       ],
       "mark": {"type": "text", "align": "center", "baseline": "middle", "fontSize": 14, "fontWeight": 600, "color": "#9A4400"},
       "encoding": {
-        "x": {"datum": 260, "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "x": {"datum": 500, "type": "quantitative", "scale": {"domain": [0, 1000]}},
         "y": {"datum": 458, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
         "text": {"field": "note", "type": "nominal"}
       }
@@ -125,8 +121,8 @@
       ],
       "mark": {"type": "text", "align": "left", "baseline": "top", "fontSize": 12.5, "fontWeight": 600, "lineHeight": 15, "color": "#1F6DAF"},
       "encoding": {
-        "x": {"datum": 350, "type": "quantitative", "scale": {"domain": [0, 520]}},
-        "y": {"datum": 212, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
+        "x": {"datum": 430, "type": "quantitative", "scale": {"domain": [0, 1000]}},
+        "y": {"datum": 200, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
         "text": {"field": "note", "type": "nominal"}
       }
     }

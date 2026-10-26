@@ -84,9 +84,6 @@ a:hover { text-decoration-thickness: 0.14em; }
 }
 .skip-link:focus { top: var(--space-3); }
 
-/* Temporary yellow marker for things you must replace. Delete the class when done. */
-.todo { background: var(--c-todo); color: var(--c-text); padding: 0 0.25em; border-radius: 2px; }
-
 /* Body copy: never wider than the measure, left-aligned. */
 .prose { max-width: var(--measure); }
 .prose p:last-child { margin-bottom: 0; }
@@ -105,17 +102,11 @@ a:hover { text-decoration-thickness: 0.14em; }
 
 /* Everything starts at the same left edge (column 1), so headings, text, charts, numbers and the footer line up. */
 .col-spine { grid-column: 1 / span 8; }   /* headings and text: columns 1 to 8   */
-.col-wide  { grid-column: 1 / span 8; }   /* same left edge                      */
 .col-full  { grid-column: 1 / -1; }       /* full width: columns 1 to 12         */
 
 /* ---------- 4. HERO ------------------------------------------------------- */
-.hero { padding-block: var(--space-8) var(--space-7); }
+.hero { padding-block: var(--space-8); }
 
-.hero__eyebrow {
-  margin-bottom: var(--space-4);
-  font-size: var(--step--1); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--c-text-muted);
-}
 .hero__title {
   font-size: var(--step-4); font-weight: 700; line-height: 1.02; letter-spacing: -0.015em;
   margin-bottom: var(--space-3);
@@ -132,10 +123,6 @@ a:hover { text-decoration-thickness: 0.14em; }
   border-left: 4px solid var(--c-accent);
   padding-left: var(--space-4);
   margin-bottom: var(--space-7);
-}
-.hero__lead-label {
-  margin: 0 0 var(--space-2);
-  font-size: var(--step--1); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-accent);
 }
 .hero__lead-text { margin: 0; font-family: var(--font-head); font-size: var(--step-1); line-height: 1.35; font-weight: 600; }
 
@@ -158,19 +145,13 @@ a:hover { text-decoration-thickness: 0.14em; }
 /* ---------- 5. STORY SECTIONS --------------------------------------------- */
 .story { padding-block: var(--space-8); border-top: 1px solid var(--c-border); }
 
-/* Rows 1 to 3 are fixed so the margin notes sit level with the text; charts flow after them. */
-.story__kicker { grid-row: 1; margin-bottom: var(--space-3);
-  font-size: var(--step--1); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-text-muted); }
-.story__num {
-  display: inline-block; min-width: 2.2em; margin-right: var(--space-2); padding: 0.2em 0.5em;
-  background: var(--c-text); color: var(--c-bg); border-radius: 999px; text-align: center; letter-spacing: 0.04em;
-}
-.story__title { grid-row: 2; font-size: var(--step-2); margin-bottom: var(--space-5); }
-.story .prose { grid-row: 3; grid-column: 1 / span 6; }   /* body text: columns 1 to 6, notes sit to its right */
+/* Rows 1 and 2 are fixed (headline, then text with its notes beside it) so the notes sit level with the text; charts flow after them. */
+.story__title { grid-row: 1; font-size: var(--step-2); margin-bottom: var(--space-5); }
+.story .prose { grid-row: 2; grid-column: 1 / span 6; }   /* body text: columns 1 to 6, notes sit to its right */
 
 /* Margin notes explain a term the first time it appears. */
 .note {
-  grid-row: 3; align-self: start; max-width: var(--measure);
+  grid-row: 2; align-self: start; max-width: var(--measure);
   padding-top: var(--space-2); border-top: 2px solid var(--c-text);
   font-size: 1rem; line-height: 1.45; color: var(--c-text-muted);
 }
@@ -189,8 +170,9 @@ a:hover { text-decoration-thickness: 0.14em; }
 .chart__canvas:empty { display: none; }
 /* Charts are drawn at a fixed design size. Vega gives each SVG a viewBox, so on a narrower screen the whole chart
    (text included) scales down together, and nothing is ever wider than its column. */
-.chart__canvas .vega-embed { display: block; width: 100%; }
-.chart__canvas .vega-embed svg { display: block; max-width: 100%; height: auto; }
+.chart__canvas .vega-embed, .chart__canvas.vega-embed { display: block; width: 100%; }
+.chart__canvas { margin-left: -5px; width: calc(100% + 5px); }   /* cancels the chart's own left padding so chart titles line up with the text above */
+.chart__canvas .vega-embed svg, .chart__canvas.vega-embed svg { display: block; width: 100%; max-width: 100%; height: auto; }
 
 /* Labelled placeholder: shown until a spec loads, then hidden by main.js. */
 .chart__placeholder {
@@ -218,14 +200,9 @@ a:hover { text-decoration-thickness: 0.14em; }
 
 .chart__caption { margin-top: var(--space-3); font-size: var(--step--1); line-height: 1.4; color: var(--c-text-muted); max-width: var(--measure); }
 
-/* Closing box (section 6). */
-.caveats {
-  grid-column: 1 / -1; margin-top: var(--space-7);
-  padding: var(--space-5) var(--space-6);
-  background: var(--c-surface); border-left: 4px solid var(--c-text); border-radius: 0 var(--radius) var(--radius) 0;
-}
-.caveats h3 { font-size: var(--step-1); margin-bottom: var(--space-4); }
-.caveats ul { margin: 0; max-width: var(--measure); }
+/* Section 6: the treemap sits on the left and its description on the right, so the right side is not empty. */
+#s6 .prose { grid-row: 2; grid-column: 8 / span 5; align-self: center; }
+#chart-c11 { grid-row: 2; margin-top: 0; }
 
 /* Shown by main.js if the page is opened from a file instead of a server. */
 .page-banner {
@@ -234,38 +211,38 @@ a:hover { text-decoration-thickness: 0.14em; }
 }
 
 /* ---------- 7. FOOTER ----------------------------------------------------- */
-.site-footer { background: var(--c-surface); border-top: 1px solid var(--c-border); padding-block: var(--space-8) var(--space-7); font-size: 1rem; }
+.site-footer { background: var(--c-surface); border-top: 1px solid var(--c-border); padding-block: var(--space-8); font-size: 1rem; }
 .site-footer__title { font-size: var(--step-2); margin-bottom: var(--space-6); }
 .footer-block { margin-bottom: var(--space-6); }
 .footer-block h3 { font-size: var(--step-1); margin-bottom: var(--space-3); }
 .footer-block p, .footer-block li { max-width: 90ch; }
 .sources li { margin-bottom: var(--space-4); }
-.todo-block { padding: var(--space-3) var(--space-4); border: 2px dashed var(--c-grey-700); border-radius: var(--radius); }
 
 /* ---------- 8. NARROW SCREENS (stack everything) -------------------------- */
 @media (max-width: 960px) {
   .grid { grid-template-columns: minmax(0, 1fr); }
-  .col-spine, .col-wide, .col-full,
-  .chart--full, .chart--spine, .caveats, .story .prose,
+  .col-spine, .col-full,
+  .chart--full, .chart--spine, .story .prose,
   .note--left, .note--right { grid-column: 1 / -1; }
-  .story__kicker, .story__title, .story .prose, .note { grid-row: auto; }
+  .story__title, .story .prose, .note { grid-row: auto; }
+  #s6 .prose, #chart-c11 { grid-row: auto; grid-column: 1 / -1; }
+  #chart-c11 { margin-top: var(--space-6); }
 
   .note { border-top: 0; border-left: 3px solid var(--c-grey-500); padding: 0 0 0 var(--space-3); margin-bottom: var(--space-4); }
   .stats { grid-template-columns: minmax(0, 1fr); }
   .hero { padding-block: var(--space-7) var(--space-6); }
   .story { padding-block: var(--space-7); }
-  .caveats { padding: var(--space-4); }
 }
 
 /* Chart controls drawn by Vega-Lite (the "Show:" buttons under the C5 dot map) */
 .chart__canvas .vega-bindings {
-  margin-top: 0.75rem;
+  margin-top: var(--space-3);
   font-family: var(--font-body);
   font-size: 1rem;
   color: var(--c-text);
 }
-.chart__canvas .vega-bind { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; }
+.chart__canvas .vega-bind { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); }
 .chart__canvas .vega-bind-name { font-weight: 600; }
-.chart__canvas .vega-bind-radio { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; }
-.chart__canvas .vega-bind-radio label { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2rem; cursor: pointer; }
+.chart__canvas .vega-bind-radio { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); }
+.chart__canvas .vega-bind-radio label { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--space-6); cursor: pointer; }
 .chart__canvas .vega-bind-radio input { width: 1.1rem; height: 1.1rem; accent-color: var(--c-accent); }

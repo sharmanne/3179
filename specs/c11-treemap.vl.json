@@ -1,19 +1,19 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "description": "Treemap of Malaysia's planted land in 2024 across the nine crop groups in DOSM's data. Rectangle area is hectares. Paddy takes 53% of the land, fruit 19%, industrial crops 11%, coconut 8% and vegetables 7%; four small groups share the last 2%. Paddy and fruit harvest almost the same weight (2.06 and 1.97 million tonnes) although fruit uses about a third of the land.",
+  "description": "Two-level treemap of Malaysia's planted land in 2024. Each block is one of the nine crop groups in DOSM's data, and each block is split into the states that grow that crop. Rectangle area is hectares. Paddy takes 53% of the land, mostly in Kedah; fruit takes 19%, industrial crops 11%, coconut 8% and vegetables 7%, and four small groups share the last 2.5%. Paddy and fruit harvest almost the same weight (2.06 and 1.97 million tonnes) although fruit uses about a third of the land.",
   "title": {
     "frame": "group",
     "text": ["Paddy fills more than half of the", "crop land DOSM counts"],
     "subtitle": [
-      "Planted area by crop group (rectangle area = hectares).",
-      "Malaysia, 2024. Source: DOSM."
+      "Planted area, 2024. Each block is a crop group, split into the",
+      "states that grow it. Rectangle area = hectares. Source: DOSM."
     ]
   },
   "width": 520,
-  "height": 440,
+  "height": 470,
   "autosize": {"type": "none"},
   "padding": {"left": 4, "right": 4, "top": 92, "bottom": 4},
-  "data": {"url": "data/clean/landuse_treemap.csv", "format": {"type": "csv", "parse": {"planted_area_ha": "number", "production_t": "number", "share_pct": "number", "x0": "number", "y0": "number", "x1": "number", "y1": "number", "label_inside": "number", "label_lines": "number"}}},
+  "data": {"url": "data/clean/landuse_treemap.csv", "format": {"type": "csv", "parse": {"planted_area_ha": "number", "share_of_group_pct": "number", "group_area_ha": "number", "group_share_pct": "number", "group_production_t": "number", "x0": "number", "y0": "number", "x1": "number", "y1": "number", "gx0": "number", "gy0": "number", "gx1": "number", "gy1": "number", "group_label_lines": "number", "state_label": "number"}}},
   "config": {
     "font": "Source Sans 3",
     "view": {"stroke": null},
@@ -22,67 +22,107 @@
   },
   "layer": [
     {
-      "description": "One rectangle per crop group. Area = hectares planted.",
-      "params": [{"name": "hover", "select": {"type": "point", "fields": ["label"], "on": "mouseover", "clear": "mouseout"}}],
+      "description": "Level 2 (child): one rectangle per state inside its crop group. Area = hectares planted. Paddy in the rice accent colour, fruit in the fruit colour used on the dot map, the rest grey.",
+      "params": [{"name": "hover", "select": {"type": "point", "fields": ["crop_type", "state"], "on": "mouseover", "clear": "mouseout"}}],
       "mark": {"type": "rect", "opacity": 1},
       "encoding": {
         "x": {"field": "x0", "type": "quantitative", "scale": {"domain": [0, 520]}, "axis": null},
         "x2": {"field": "x1"},
-        "y": {"field": "y0", "type": "quantitative", "scale": {"domain": [0, 440], "reverse": true}, "axis": null},
+        "y": {"field": "y0", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
         "y2": {"field": "y1"},
-        "color": {"condition": {"test": "datum.crop_type == 'paddy'", "value": "#00553F"}, "value": "#D5CEC1"},
+        "color": {"condition": [{"test": "datum.crop_type == 'paddy'", "value": "#00553F"}, {"test": "datum.crop_type == 'fruits'", "value": "#C99A00"}], "value": "#D5CEC1"},
         "stroke": {"condition": {"param": "hover", "empty": false, "value": "#1F1B16"}, "value": "#FBF8F3"},
-        "strokeWidth": {"condition": {"param": "hover", "empty": false, "value": 3}, "value": 2.5},
+        "strokeWidth": {"condition": {"param": "hover", "empty": false, "value": 2}, "value": 0.6},
         "tooltip": [
           {"field": "label", "type": "nominal", "title": "Crop group"},
+          {"field": "display_name", "type": "nominal", "title": "State"},
           {"field": "planted_area_ha", "type": "quantitative", "title": "Planted area (hectares)", "format": ",.0f"},
-          {"field": "share_pct", "type": "quantitative", "title": "Share of land counted (%)", "format": ".1f"},
-          {"field": "production_t", "type": "quantitative", "title": "Harvest (tonnes)", "format": ",.0f"}
+          {"field": "share_of_group_pct", "type": "quantitative", "title": "Share of this crop group's land (%)", "format": ".1f"},
+          {"field": "group_share_pct", "type": "quantitative", "title": "Crop group's share of all crop land (%)", "format": ".1f"}
         ]
       }
     },
     {
-      "description": "Labels inside the rectangles that are big enough: name, share of land and, for the largest, weight harvested",
-      "transform": [
-        {"filter": "datum.label_inside == 1"},
-        {"calculate": "(datum.x0 + datum.x1) / 2", "as": "cx"},
-        {"calculate": "(datum.y0 + datum.y1) / 2", "as": "cy"},
-        {"calculate": "datum.label_lines == 3 ? [datum.label, format(datum.share_pct, '.0f') + '% of the land', format(datum.production_t / 1000000, '.2f') + ' million t harvested'] : [datum.label, format(datum.share_pct, '.0f') + '%']", "as": "text_lines"}
-      ],
-      "mark": {"type": "text", "align": "center", "baseline": "middle", "fontSize": 13.5, "fontWeight": 600, "lineHeight": 17},
+      "description": "Level 1 (parent): a thick outline around each crop group, so the nine groups read as blocks",
+      "transform": [{"aggregate": [{"op": "min", "field": "gx0", "as": "gx0"}, {"op": "min", "field": "gy0", "as": "gy0"}, {"op": "max", "field": "gx1", "as": "gx1"}, {"op": "max", "field": "gy1", "as": "gy1"}], "groupby": ["crop_type"]}],
+      "mark": {"type": "rect", "fill": null, "stroke": "#FBF8F3", "strokeWidth": 3},
       "encoding": {
-        "x": {"field": "cx", "type": "quantitative", "scale": {"domain": [0, 520]}},
-        "y": {"field": "cy", "type": "quantitative", "scale": {"domain": [0, 440], "reverse": true}},
+        "x": {"field": "gx0", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "x2": {"field": "gx1"},
+        "y": {"field": "gy0", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
+        "y2": {"field": "gy1"}
+      }
+    },
+    {
+      "description": "Crop group labels in the top-left corner of each block that is big enough: name, share of land and, for the two biggest, weight harvested",
+      "transform": [
+        {"filter": "datum.group_label_lines > 0"},
+        {"aggregate": [{"op": "min", "field": "gx0", "as": "gx0"}, {"op": "min", "field": "gy0", "as": "gy0"}, {"op": "max", "field": "group_share_pct", "as": "share"}, {"op": "max", "field": "group_production_t", "as": "prod"}, {"op": "max", "field": "group_label_lines", "as": "lines"}], "groupby": ["crop_type", "label"]},
+        {"calculate": "datum.gx0 + 8", "as": "lx"},
+        {"calculate": "datum.gy0 + 8", "as": "ly"},
+        {"calculate": "datum.lines == 3 ? [datum.label, format(datum.share, '.0f') + '% of the land', format(datum.prod / 1000000, '.2f') + ' million tonnes harvested'] : [datum.label, format(datum.share, '.0f') + '%']", "as": "text_lines"}
+      ],
+      "mark": {"type": "text", "align": "left", "baseline": "top", "fontSize": 13, "fontWeight": 700, "lineHeight": 16},
+      "encoding": {
+        "x": {"field": "lx", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "y": {"field": "ly", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
         "text": {"field": "text_lines", "type": "nominal"},
         "color": {"condition": {"test": "datum.crop_type == 'paddy'", "value": "#FFFFFF"}, "value": "#1F1B16"}
       }
     },
     {
-      "description": "Annotation: the four small groups, with a line to where they sit",
+      "description": "State names on the biggest paddy rectangles (bottom-left corner), so the reader sees where the paddy land is",
       "transform": [
-        {"filter": "datum.label_inside == 0"},
-        {"calculate": "(datum.x0 + datum.x1) / 2", "as": "cx"},
-        {"calculate": "(datum.y0 + datum.y1) / 2", "as": "cy"},
-        {"aggregate": [{"op": "mean", "field": "cx", "as": "cx"}, {"op": "mean", "field": "cy", "as": "cy"}, {"op": "sum", "field": "share_pct", "as": "small_share"}]},
-        {"calculate": "'Cash crops, spices, flowers and herbs: ' + format(datum.small_share, '.1f') + '% together'", "as": "note"}
+        {"filter": "datum.state_label == 1"},
+        {"calculate": "datum.x0 + 7", "as": "lx"},
+        {"calculate": "datum.y1 - 6", "as": "ly"}
       ],
-      "mark": {"type": "rule", "stroke": "#1F1B16", "strokeWidth": 1.2},
+      "mark": {"type": "text", "align": "left", "baseline": "bottom", "fontSize": 12, "fontWeight": 400, "color": "#FFFFFF"},
       "encoding": {
-        "x": {"field": "cx", "type": "quantitative", "scale": {"domain": [0, 520]}},
-        "y": {"field": "cy", "type": "quantitative", "scale": {"domain": [0, 440], "reverse": true}},
-        "y2": {"datum": 414}
+        "x": {"field": "lx", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "y": {"field": "ly", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
+        "text": {"field": "display_name", "type": "nominal"}
       }
     },
     {
+      "description": "Annotation: a bracket under the four small groups (cash crops, spices, flowers, herbs): a horizontal line with a tick at each end",
       "transform": [
-        {"filter": "datum.label_inside == 0"},
-        {"aggregate": [{"op": "sum", "field": "share_pct", "as": "small_share"}]},
-        {"calculate": "'Cash crops, spices, flowers and herbs: ' + format(datum.small_share, '.1f') + '% together'", "as": "note"}
+        {"filter": "datum.group_label_lines == 0"},
+        {"aggregate": [{"op": "min", "field": "gx0", "as": "bx0"}, {"op": "max", "field": "gx1", "as": "bx1"}]}
       ],
-      "mark": {"type": "text", "align": "right", "baseline": "middle", "fontSize": 13, "fontWeight": 600, "color": "#1F1B16"},
+      "mark": {"type": "rule", "stroke": "#1F1B16", "strokeWidth": 1.5},
       "encoding": {
-        "x": {"datum": 520, "type": "quantitative", "scale": {"domain": [0, 520]}},
-        "y": {"datum": 426, "type": "quantitative", "scale": {"domain": [0, 440], "reverse": true}},
+        "x": {"field": "bx0", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "x2": {"field": "bx1"},
+        "y": {"datum": 410, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}}
+      }
+    },
+    {
+      "description": "Bracket ticks: one at each end, rising to the bottom edge of the rectangles",
+      "transform": [
+        {"filter": "datum.group_label_lines == 0"},
+        {"aggregate": [{"op": "min", "field": "gx0", "as": "bx0"}, {"op": "max", "field": "gx1", "as": "bx1"}]},
+        {"fold": ["bx0", "bx1"], "as": ["end", "xt"]}
+      ],
+      "mark": {"type": "rule", "stroke": "#1F1B16", "strokeWidth": 1.5},
+      "encoding": {
+        "x": {"field": "xt", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "y": {"datum": 402, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
+        "y2": {"datum": 410}
+      }
+    },
+    {
+      "description": "Annotation text under the bracket (right-aligned to its right end). The share is the sum of the four groups' shares.",
+      "transform": [
+        {"filter": "datum.group_label_lines == 0"},
+        {"aggregate": [{"op": "max", "field": "group_share_pct", "as": "share"}, {"op": "max", "field": "gx1", "as": "gx1"}], "groupby": ["crop_type"]},
+        {"aggregate": [{"op": "sum", "field": "share", "as": "small_share"}, {"op": "max", "field": "gx1", "as": "bx1"}]},
+        {"calculate": "['Cash crops, spices,', 'flowers and herbs:', format(datum.small_share, '.1f') + '% together']", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "right", "baseline": "top", "dy": 6, "fontSize": 12.5, "fontWeight": 600, "lineHeight": 15, "color": "#1F1B16"},
+      "encoding": {
+        "x": {"field": "bx1", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "y": {"datum": 410, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
         "text": {"field": "note", "type": "nominal"}
       }
     }

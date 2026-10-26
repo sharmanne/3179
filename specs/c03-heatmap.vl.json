@@ -1,11 +1,11 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "description": "Heatmap with one row per food group and one column per year from 2010 to 2023. The colour of each cell is the change in food energy available per person compared with 2010: blue means more, orange means less, white means no change. Fruit jumps in 2021 and eggs dip in 2019; most other groups drift slowly.",
+  "description": "Heatmap with one row per food group and one column per year from 2010 to 2023. The colour of each cell is the change in food energy available per person compared with 2010: blue means more, orange means less, white means no change. Fruit jumps in 2021 and eggs dip in 2019; most other groups drift slowly. Exact values are in the tooltip.",
   "title": {
     "text": ["Fruit jumped in 2021 and eggs dipped in 2019;", "most other food groups drifted slowly"],
     "subtitle": [
       "Change in food energy available per person compared with 2010, by food group (%).",
-      "Malaysia, 2010–2023. Source: FAO."
+      "Malaysia, 2010–2023. Point at a cell for its exact values. Source: FAO."
     ]
   },
   "width": 1090,
@@ -34,7 +34,7 @@
         },
         "color": {
           "field": "change_pct_vs_2010", "type": "quantitative",
-          "scale": {"domain": [-80, 0, 80], "range": ["#D55E00", "#F5F1EA", "#3A8FD6"], "clamp": true},
+          "scale": {"domain": [-80, 0, 80], "range": ["#D55E00", "#F5F1EA", "#3A8FD6"], "interpolate": "rgb", "clamp": true},
           "legend": {
             "orient": "bottom", "direction": "horizontal", "title": "Change since 2010 (%)",
             "titleOrient": "left", "titleLimit": 420, "gradientLength": 320, "gradientThickness": 12, "titlePadding": 12,
@@ -44,23 +44,10 @@
         "tooltip": [
           {"field": "food_group", "type": "nominal", "title": "Food group"},
           {"field": "year", "type": "ordinal", "title": "Year"},
-          {"field": "kcal_per_day", "type": "quantitative", "title": "Energy per person (kcal a day)", "format": ",.0f"},
+          {"field": "kcal_per_day", "type": "quantitative", "title": "Energy per person (kilocalories a day)", "format": ",.0f"},
           {"field": "change_pct_vs_2010", "type": "quantitative", "title": "Change since 2010 (%)", "format": "+.0f"},
           {"field": "change_pct_vs_previous_year", "type": "quantitative", "title": "Change since previous year (%)", "format": "+.0f"}
         ]
-      }
-    },
-    {
-      "description": "Values written in the 2023 column, so the end point can be read without the colour scale",
-      "transform": [
-        {"filter": "datum.year == 2023"},
-        {"calculate": "replace(format(datum.change_pct_vs_2010, '+.0f'), '-', '−') + '%'", "as": "label"}
-      ],
-      "mark": {"type": "text", "fontSize": 12, "fontWeight": 600, "color": "#1F1B16"},
-      "encoding": {
-        "x": {"field": "year", "type": "ordinal"},
-        "y": {"field": "food_group", "type": "nominal", "sort": {"field": "group_order", "op": "min", "order": "ascending"}},
-        "text": {"field": "label", "type": "nominal"}
       }
     },
     {

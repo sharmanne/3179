@@ -102,6 +102,20 @@
     console.warn('[' + (slot.dataset.chart || slot.id) + '] ' + explain(err, url), err);
   }
 
+  /**
+   * Options for vegaEmbed. The spec files are already fetched with cache: 'no-cache'; this makes the CSV and
+   * TopoJSON files that the specs load behave the same way, so a chart never mixes a new spec with an old data file.
+   * The browser still reuses a file when the server says it has not changed (a quick 304 reply).
+   */
+  function embedOptionsFor() {
+    var opts = {};
+    Object.keys(SETTINGS.embedOptions).forEach(function (k) { opts[k] = SETTINGS.embedOptions[k]; });
+    if (window.vega && typeof window.vega.loader === 'function') {
+      opts.loader = window.vega.loader({ http: { cache: 'no-cache' } });
+    }
+    return opts;
+  }
+
   /* ---------- Loading one chart ---------------------------------------------------------- */
   var views = {};   // chart id -> Vega view, kept so later steps (for example linked charts) can reach it
 
@@ -124,7 +138,7 @@
       })
       .then(function (spec) {
         var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-        return ready.then(function () { return window.vegaEmbed(target, prepareSpec(spec, slot), SETTINGS.embedOptions); });
+        return ready.then(function () { return window.vegaEmbed(target, prepareSpec(spec, slot), embedOptionsFor()); });
       })
       .then(function (result) {
         views[slot.id] = result.view;

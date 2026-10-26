@@ -1,0 +1,118 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Tile grid map of paddy harvested in 2024. Each state is one equal square placed roughly where the state is, so small states such as Perlis and Pulau Pinang get as much room as large ones. The circle inside each square has an area proportional to the tonnes harvested, and every circle fits inside its own square. Kedah's circle is the largest: it grows 38% of Malaysia's paddy.",
+  "title": {
+    "frame": "group",
+    "text": ["Kedah grows 38% of Malaysia's paddy"],
+    "subtitle": [
+      "Paddy harvested, tonnes, by state, 2024. Each square is one state, placed roughly where it is, so small states get",
+      "as much room as large ones. Circle area shows the tonnes harvested. Source: Department of Statistics Malaysia (DOSM)."
+    ]
+  },
+  "width": 1000,
+  "height": 540,
+  "autosize": {"type": "none"},
+  "padding": {"left": 4, "right": 4, "top": 84, "bottom": 4},
+  "data": {"url": "data/clean/paddy_by_state_2024.csv", "format": {"type": "csv", "parse": {"planted_area_ha": "number", "production_t": "number", "share_of_malaysia_pct": "number", "tile_x0": "number", "tile_y0": "number", "tile_x1": "number", "tile_y1": "number", "circle_x": "number", "circle_y": "number", "circle_radius_px": "number"}}},
+  "config": {
+    "font": "Source Sans 3",
+    "view": {"stroke": null},
+    "legend": {"labelFont": "Source Sans 3", "titleFont": "Source Sans 3", "labelColor": "#5A5348", "titleColor": "#5A5348", "labelFontSize": 13, "titleFontSize": 13, "titleLimit": 300, "labelLimit": 300},
+    "title": {"font": "Fraunces", "fontSize": 20, "fontWeight": 600, "color": "#1F1B16", "anchor": "start", "offset": 10,
+              "subtitleFont": "Source Sans 3", "subtitleFontSize": 13, "subtitleColor": "#5A5348", "subtitlePadding": 6}
+  },
+  "layer": [
+    {
+      "description": "One equal square per state, placed in a grid that follows the map of Malaysia",
+      "mark": {"type": "rect", "fill": "#ECE6DB", "cornerRadius": 3},
+      "encoding": {
+        "x": {"field": "tile_x0", "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "x2": {"field": "tile_x1"},
+        "y": {"field": "tile_y0", "type": "quantitative", "scale": {"domain": [0, 540], "reverse": true}, "axis": null},
+        "y2": {"field": "tile_y1"}
+      }
+    },
+    {
+      "description": "State name at the top of each square",
+      "transform": [{"calculate": "datum.tile_y0 + 12", "as": "name_y"}],
+      "mark": {"type": "text", "align": "center", "baseline": "middle", "fontSize": 12, "fontWeight": 600, "color": "#1F1B16"},
+      "encoding": {
+        "x": {"field": "circle_x", "type": "quantitative", "scale": {"domain": [0, 1000]}},
+        "y": {"field": "name_y", "type": "quantitative", "scale": {"domain": [0, 540], "reverse": true}},
+        "text": {"field": "display_name", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Squares of the two federal territories that grow no paddy",
+      "transform": [{"filter": "datum.production_t == 0"}],
+      "mark": {"type": "text", "align": "center", "baseline": "middle", "fontSize": 12, "fontStyle": "italic", "color": "#5A5348"},
+      "encoding": {
+        "x": {"field": "circle_x", "type": "quantitative", "scale": {"domain": [0, 1000]}},
+        "y": {"field": "circle_y", "type": "quantitative", "scale": {"domain": [0, 540], "reverse": true}},
+        "text": {"value": "no paddy"}
+      }
+    },
+    {
+      "description": "One circle per state. Circle area is proportional to tonnes harvested (the size scale starts at zero), and the largest circle exactly fits its square. This layer carries the size legend.",
+      "transform": [{"filter": "datum.production_t > 0"}],
+      "params": [{"name": "hover", "select": {"type": "point", "fields": ["state"], "on": "mouseover", "clear": "mouseout"}}],
+      "mark": {"type": "circle", "fill": "#00553F", "opacity": 0.88},
+      "encoding": {
+        "x": {"field": "circle_x", "type": "quantitative", "scale": {"domain": [0, 1000]}},
+        "y": {"field": "circle_y", "type": "quantitative", "scale": {"domain": [0, 540], "reverse": true}},
+        "size": {
+          "field": "production_t", "type": "quantitative",
+          "scale": {"type": "linear", "zero": true, "domain": [0, 800000], "range": [0, 3739.1]},
+          "legend": {"title": "Paddy harvested (tonnes)", "format": ",.0f", "orient": "none", "legendX": 760, "legendY": 300,
+                     "values": [100000, 400000, 800000], "symbolFillColor": "#00553F", "symbolOpacity": 0.88, "symbolStrokeWidth": 0, "padding": 6}
+        },
+        "stroke": {"condition": {"param": "hover", "empty": false, "value": "#1F1B16"}, "value": "#FBF8F3"},
+        "strokeWidth": {"condition": {"param": "hover", "empty": false, "value": 2.5}, "value": 1},
+        "tooltip": [
+          {"field": "display_name", "type": "nominal", "title": "State"},
+          {"field": "production_t", "type": "quantitative", "title": "Paddy harvested (tonnes)", "format": ",.0f"},
+          {"field": "share_of_malaysia_pct", "type": "quantitative", "title": "Share of Malaysia (%)", "format": ".1f"},
+          {"field": "planted_area_ha", "type": "quantitative", "title": "Paddy fields (hectares)", "format": ",.0f"}
+        ]
+      }
+    },
+    {
+      "description": "Region labels under each group of squares",
+      "data": {"values": [{"t": "Peninsular Malaysia", "x": 204, "y": 518}, {"t": "East Malaysia", "x": 604, "y": 318}]},
+      "mark": {"type": "text", "align": "center", "baseline": "top", "fontSize": 12, "color": "#5A5348", "letterSpacing": 0.5},
+      "encoding": {
+        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [0, 1000]}},
+        "y": {"field": "y", "type": "quantitative", "scale": {"domain": [0, 540], "reverse": true}},
+        "text": {"field": "t", "type": "nominal"}
+      }
+    },
+    {
+      "description": "Annotation: leader line from the Kedah circle to the note in the empty squares above",
+      "transform": [
+        {"filter": "datum.state == 'Kedah'"},
+        {"calculate": "datum.circle_x + datum.circle_radius_px * 0.64", "as": "lx0"},
+        {"calculate": "datum.circle_y - datum.circle_radius_px * 0.77", "as": "ly0"}
+      ],
+      "mark": {"type": "rule", "stroke": "#00553F", "strokeWidth": 1.5},
+      "encoding": {
+        "x": {"field": "lx0", "type": "quantitative", "scale": {"domain": [0, 1000]}},
+        "y": {"field": "ly0", "type": "quantitative", "scale": {"domain": [0, 540], "reverse": true}},
+        "x2": {"datum": 214},
+        "y2": {"datum": 86}
+      }
+    },
+    {
+      "description": "Annotation: why Kedah matters (the share is read from the data)",
+      "transform": [
+        {"filter": "datum.state == 'Kedah'"},
+        {"calculate": "['Kedah grows ' + format(datum.share_of_malaysia_pct, '.0f') + '% of', 'Malaysia\\'s paddy: one state,', 'over a third']", "as": "note"}
+      ],
+      "mark": {"type": "text", "align": "left", "baseline": "top", "fontSize": 13, "fontWeight": 600, "lineHeight": 16, "color": "#00553F"},
+      "encoding": {
+        "x": {"datum": 218, "type": "quantitative", "scale": {"domain": [0, 1000]}},
+        "y": {"datum": 34, "type": "quantitative", "scale": {"domain": [0, 540], "reverse": true}},
+        "text": {"field": "note", "type": "nominal"}
+      }
+    }
+  ]
+}

@@ -8,9 +8,9 @@
       "Malaysia, 2024. Source: DOSM. Flowers are not counted in tonnes."
     ]
   },
-  "width": 520,
+  "width": "container",
   "height": 380,
-  "autosize": {"type": "fit", "contains": "padding"},
+  "autosize": {"type": "fit-x", "contains": "padding"},
   "padding": {"left": 4, "right": 4, "top": 4, "bottom": 4},
   "data": {"url": "data/clean/crop_harvest.csv", "format": {"type": "csv", "parse": {"production_t": "number"}}},
   "config": {
@@ -33,7 +33,7 @@
         },
         "x": {"field": "zero", "type": "quantitative", "scale": {"domain": [0, 3000000], "nice": false}, "axis": null},
         "x2": {"field": "production_t"},
-        "color": {"condition": [{"test": "datum.crop_type == 'paddy'", "value": "#00553F"}, {"test": "datum.crop_type == 'fruits'", "value": "#6AAA92"}], "value": "#A9A296"}
+        "color": {"condition": [{"test": "datum.crop_type == 'paddy'", "value": "#00553F"}, {"test": "datum.crop_type == 'fruits'", "value": "#C99A00"}], "value": "#A9A296"}
       }
     },
     {
@@ -43,7 +43,7 @@
       "encoding": {
         "y": {"field": "label", "type": "nominal", "sort": {"field": "production_t", "order": "descending"}},
         "x": {"field": "production_t", "type": "quantitative", "scale": {"domain": [0, 3000000], "nice": false}},
-        "color": {"condition": [{"test": "datum.crop_type == 'paddy'", "value": "#00553F"}, {"test": "datum.crop_type == 'fruits'", "value": "#6AAA92"}], "value": "#A9A296"},
+        "color": {"condition": [{"test": "datum.crop_type == 'paddy'", "value": "#00553F"}, {"test": "datum.crop_type == 'fruits'", "value": "#C99A00"}], "value": "#A9A296"},
         "stroke": {"condition": {"param": "hover", "empty": false, "value": "#1F1B16"}, "value": "#FBF8F3"},
         "strokeWidth": {"condition": {"param": "hover", "empty": false, "value": 2.5}, "value": 1},
         "tooltip": [
@@ -55,7 +55,7 @@
     {
       "description": "The value written next to each dot, with its unit",
       "transform": [
-        {"calculate": "datum.production_t >= 1000000 ? format(datum.production_t / 1000000, '.2f') + ' million t' : format(datum.production_t / 1000, ',.0f') + ' thousand t'", "as": "value_label"}
+        {"calculate": "datum.production_t >= 1000000 ? format(datum.production_t / 1000000, '.2f') + ' million tonnes' : format(datum.production_t / 1000, ',.0f') + ' thousand tonnes'", "as": "value_label"}
       ],
       "mark": {"type": "text", "align": "left", "baseline": "middle", "dx": 12, "fontSize": 13, "fontWeight": 600, "color": "#1F1B16"},
       "encoding": {
@@ -70,7 +70,7 @@
         {"filter": "datum.crop_type == 'paddy'"},
         {"calculate": "'fruits'", "as": "fruit_key"},
         {"lookup": "fruit_key", "from": {"data": {"url": "data/clean/crop_harvest.csv", "format": {"type": "csv", "parse": {"production_t": "number"}}}, "key": "crop_type", "fields": ["production_t"]}, "as": ["fruit_t"]},
-        {"calculate": "['Paddy (' + format(datum.production_t / 1000000, '.2f') + ' million t) and', 'fruit (' + format(datum.fruit_t / 1000000, '.2f') + ' million t) are almost level']", "as": "note"}
+        {"calculate": "['Paddy (' + format(datum.production_t / 1000000, '.2f') + ' million tonnes) and', 'fruit (' + format(datum.fruit_t / 1000000, '.2f') + ' million tonnes) are almost level']", "as": "note"}
       ],
       "mark": {"type": "text", "align": "right", "baseline": "middle", "fontSize": 13, "fontWeight": 600, "lineHeight": 16, "color": "#00553F"},
       "encoding": {

@@ -32,6 +32,6 @@ To rebuild the cleaned data: `python scripts/prepare_data.py` (needs pandas and 
 
 Vega 5.22.1, Vega-Lite 5.2.0 and vega-embed 6.20.8, loaded from jsDelivr. Fonts: Fraunces and Source Sans 3 from Google Fonts.
 
-## Still to fill in before submission (highlighted yellow in `index.html`)
+## Before submission
 
-Author name, dates, data retrieval dates, the AI acknowledgement and the link to `DATA_SOURCES.md`.
+Check the wording of the AI acknowledgement in the footer of `index.html`, and upload the hand-drawn sketch as a PDF to this repository (the Moodle form asks for its URL).

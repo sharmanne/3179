@@ -58,7 +58,7 @@
           {"field": "group", "type": "nominal", "title": "Food group"},
           {"field": "year", "type": "nominal", "title": "Year"},
           {"field": "share_pct", "type": "quantitative", "title": "Share of food energy (%)", "format": ".1f"},
-          {"field": "kcal_per_day", "type": "quantitative", "title": "Energy per person (kcal a day)", "format": ",.0f"}
+          {"field": "kcal_per_day", "type": "quantitative", "title": "Energy per person (kilocalories a day)", "format": ",.0f"}
         ]
       }
     },
@@ -130,21 +130,30 @@
       ],
       "mark": {"type": "text", "align": "left", "baseline": "middle", "fontSize": 13, "lineHeight": 16, "fontWeight": 600, "color": "#00553F"},
       "encoding": {
-        "x": {"datum": 846, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
-        "y": {"datum": 50, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "x": {"datum": 856, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"datum": 42, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
         "text": {"field": "note", "type": "nominal"}
       }
     },
     {
-      "description": "Leader line from the rice note to the rice wedge",
+      "description": "Leader line from the rice note to the middle of the rice wedge on the 2023 plate",
       "data": {"url": "data/clean/food_plate_summary.csv", "format": {"type": "csv", "parse": {"dots_2010": "number", "dots_2023": "number", "row_y": "number"}}},
       "transform": [{"filter": "datum.group == 'Rice'"}],
       "mark": {"type": "rule", "stroke": "#00553F", "strokeWidth": 1.5},
       "encoding": {
-        "x": {"datum": 868, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
-        "x2": {"datum": 896},
-        "y": {"datum": 76, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
-        "y2": {"datum": 128}
+        "x": {"datum": 944, "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "x2": {"datum": 926.4},
+        "y": {"datum": 66, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "y2": {"datum": 126.1}
+      }
+    },
+    {
+      "description": "Arrowhead at the end of the leader line, pointing into the middle of the rice wedge (12% of a turn clockwise from the top of the 2023 plate)",
+      "data": {"values": [{"x": 926.4, "y": 126.1}]},
+      "mark": {"type": "point", "shape": "triangle-down", "filled": true, "size": 70, "color": "#00553F", "opacity": 1, "angle": 16.4},
+      "encoding": {
+        "x": {"field": "x", "type": "quantitative", "scale": {"domain": [0, 1000]}, "axis": null},
+        "y": {"field": "y", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null}
       }
     },
     {

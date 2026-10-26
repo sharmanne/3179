@@ -1,11 +1,11 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "description": "Dumbbell dot plot of twelve foods. Each row joins the kilograms of that food available per person per year in 2010–12 (grey dot) to 2021–23 (coloured dot): blue means more, orange means less, grey means little change. Milk, eggs and fruit rose; rice and fish fell; flour and sugar held steady.",
+  "description": "Dumbbell dot plot of twelve foods. Each row joins the kilograms of that food available per person per year in 2010–2012 (short grey line) to 2021–2023 (coloured dot): blue means more, orange means less, grey means little change. Milk, eggs and fruit rose; rice and fish fell; flour and sugar held steady.",
   "title": {
     "text": ["Milk and eggs rose, rice and fish fell,", "flour and sugar held steady"],
     "subtitle": [
       "Food available per person, kilograms a year.",
-      "Average of 2010–12 compared with 2021–23. Source: FAO."
+      "Average of 2010–2012 (short grey line) compared with 2021–2023 (dot). Source: FAO."
     ]
   },
   "width": "container",
@@ -42,16 +42,21 @@
       }
     },
     {
-      "description": "2010–12 dot (grey)",
-      "mark": {"type": "circle", "size": 110, "color": "#A9A296", "opacity": 1, "stroke": "#FBF8F3", "strokeWidth": 1},
+      "description": "2010–2012: a short vertical line (tick). It is taller than the dot, so it stays visible above and below the dot even when the two values are almost equal",
+      "mark": {"type": "tick", "orient": "vertical", "size": 22, "thickness": 3, "color": "#5A5348", "opacity": 1},
       "encoding": {
         "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
-        "x": {"field": "kg_2010_12", "type": "quantitative", "scale": {"domain": [0, 185]}}
+        "x": {"field": "kg_2010_12", "type": "quantitative", "scale": {"domain": [0, 185]}},
+        "tooltip": [
+          {"field": "food", "type": "nominal", "title": "Food"},
+          {"field": "kg_2010_12", "type": "quantitative", "title": "2010–2012 (kilograms per person a year)", "format": ".1f"},
+          {"field": "kg_2021_23", "type": "quantitative", "title": "2021–2023 (kilograms per person a year)", "format": ".1f"}
+        ]
       }
     },
     {
-      "description": "2021–23 dot (blue = more, orange = less, grey = little change)",
-      "mark": {"type": "circle", "size": 170, "opacity": 1, "stroke": "#FBF8F3", "strokeWidth": 1},
+      "description": "2021–2023 dot (blue = more, orange = less, grey = little change)",
+      "mark": {"type": "circle", "size": 150, "opacity": 1, "stroke": "#FBF8F3", "strokeWidth": 1},
       "encoding": {
         "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
         "x": {"field": "kg_2021_23", "type": "quantitative", "scale": {"domain": [0, 185]}},
@@ -61,9 +66,9 @@
         },
         "tooltip": [
           {"field": "food", "type": "nominal", "title": "Food"},
-          {"field": "kg_2010_12", "type": "quantitative", "title": "2010–12 (kg per person a year)", "format": ".1f"},
-          {"field": "kg_2021_23", "type": "quantitative", "title": "2021–23 (kg per person a year)", "format": ".1f"},
-          {"field": "change_kg", "type": "quantitative", "title": "Change (kg)", "format": "+.1f"},
+          {"field": "kg_2010_12", "type": "quantitative", "title": "2010–2012 (kilograms per person a year)", "format": ".1f"},
+          {"field": "kg_2021_23", "type": "quantitative", "title": "2021–2023 (kilograms per person a year)", "format": ".1f"},
+          {"field": "change_kg", "type": "quantitative", "title": "Change (kilograms)", "format": "+.1f"},
           {"field": "change_pct", "type": "quantitative", "title": "Change (%)", "format": "+.0f"}
         ]
       }
@@ -85,13 +90,13 @@
       }
     },
     {
-      "description": "Key to the two dots, written above the first row: 2010–12 (left of its dot), 2021–23 (right of its dot)",
+      "description": "Key to the two marks, written above the first row: 2010–2012 line (left), 2021–2023 dot (right)",
       "transform": [{"filter": "datum.sort_order == 1"}],
       "mark": {"type": "text", "align": "right", "baseline": "bottom", "dy": -12, "dx": -4, "fontSize": 12, "color": "#5A5348"},
       "encoding": {
         "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
         "x": {"field": "kg_2010_12", "type": "quantitative", "scale": {"domain": [0, 185]}},
-        "text": {"value": "2010–12"}
+        "text": {"value": "2010–2012"}
       }
     },
     {
@@ -100,14 +105,14 @@
       "encoding": {
         "y": {"field": "food", "type": "nominal", "sort": {"field": "sort_order", "op": "min", "order": "ascending"}},
         "x": {"field": "kg_2021_23", "type": "quantitative", "scale": {"domain": [0, 185]}},
-        "text": {"value": "2021–23"}
+        "text": {"value": "2021–2023 (dot)"}
       }
     },
     {
       "description": "Annotation 1: rice lost the most kilograms",
       "transform": [
         {"filter": "datum.food == 'Rice'"},
-        {"calculate": "'Rice: ' + format(abs(datum.change_kg), '.0f') + ' kg less per person each year'", "as": "note"}
+        {"calculate": "'Rice: ' + format(abs(datum.change_kg), '.0f') + ' kilograms less per person each year'", "as": "note"}
       ],
       "mark": {"type": "text", "align": "right", "baseline": "middle", "dx": -14, "fontSize": 13, "fontWeight": 600, "color": "#9A4400"},
       "encoding": {

@@ -83,7 +83,7 @@ def place_labels(xs, ys, radii, inside, names, width, height, char_w=6.6, line_h
     boxes = []
     out_x, out_y, out_a = [None] * n, [None] * n, [None] * n
 
-    def clash(b):
+    def clash(b, i, anchor):
         x0, y0, x1, y1 = b
         if x0 < 0 or x1 > width or y0 < 0 or y1 > height:
             return 1e6
@@ -95,6 +95,11 @@ def place_labels(xs, ys, radii, inside, names, width, height, char_w=6.6, line_h
         for o in boxes:
             if x0 < o[2] and x1 > o[0] and y0 < o[3] and y1 > o[1]:
                 pen += 1000.0
+        ax, ay = anchor
+        own = math.hypot(ax - xs[i], ay - ys[i]) - radii[i]
+        for k in range(n):                       # do not park a label next to somebody else's circle
+            if k != i and math.hypot(ax - xs[k], ay - ys[k]) - radii[k] < own + 6:
+                pen += 200.0
         return pen
 
     order = sorted(range(n), key=lambda i: radii[i], reverse=True)        # big circles choose first
@@ -118,7 +123,7 @@ def place_labels(xs, ys, radii, inside, names, width, height, char_w=6.6, line_h
                 r = radii[i] + gap + extra
                 px, py = xs[i] + r * math.cos(ang), ys[i] + r * math.sin(ang)
                 b = (px, py - h / 2, px + w, py + h / 2) if side == 1 else (px - w, py - h / 2, px, py + h / 2)
-                score = clash(b) + d_out + extra / 10
+                score = clash(b, i, (px, py)) + d_out + extra / 10
                 if best is None or score < best[0]:
                     best = (score, px, py, side, b)
                 if score < 10:
@@ -129,6 +134,16 @@ def place_labels(xs, ys, radii, inside, names, width, height, char_w=6.6, line_h
         boxes.append(b)
         out_x[i], out_y[i], out_a[i] = px, py, ("left" if side == 1 else "right")
     return out_x, out_y, out_a
+
+
+def leader_ends(xs, ys, radii, lx, ly, align, gap=2.0):
+    """Leader line from the edge of each circle to its label: (edge_x, edge_y, end_x, end_y) per circle.
+    The line stops `gap` px short of the text, on the side the text starts from."""
+    out = []
+    for x, y, r, px, py, a in zip(xs, ys, radii, lx, ly, align):
+        ang = math.atan2(py - y, px - x)
+        out.append((x + r * math.cos(ang), y + r * math.sin(ang), px + (-gap if a == "left" else gap), py))
+    return out
 
 
 # ---------------------------------------------------------------------------------------------------

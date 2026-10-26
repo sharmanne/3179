@@ -97,6 +97,102 @@ def sample_points_inside(state, n, rng, existing=None, tries=12):
     return out
 
 
+def make_screen_projection(scale, translate, center, parallels=(2.0, 6.0), central_meridian=109.6):
+    """The exact pixel position Vega draws a (lon, lat) at, for a projection written in a spec as
+    {"type": "conicEqualArea", "parallels": parallels, "rotate": [-central_meridian, 0, 0],
+     "center": center, "scale": scale, "translate": translate}.
+    d3-geo puts the projected centre at `translate`, then multiplies by `scale`, with y pointing down."""
+    cx, cy = albers(central_meridian + center[0], center[1], parallels, central_meridian)
+
+    def project(lon, lat):
+        x, y = albers(lon, lat, parallels, central_meridian)
+        return translate[0] + scale * (x - cx), translate[1] - scale * (y - cy)
+    return project
+
+
+def _point_to_segment(px, py, ax, ay, bx, by):
+    dx, dy = bx - ax, by - ay
+    t = 0.0 if dx == dy == 0 else max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+    return math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+
+
+def _signed_distance(px, py, rings):
+    """Distance from a point to the polygon outline: positive inside, negative outside (rings = outer, holes...)."""
+    inside, best = False, float("inf")
+    for ring in rings:
+        for (ax, ay), (bx, by) in zip(ring, ring[1:] + ring[:1]):
+            if (ay > py) != (by > py) and px < (bx - ax) * (py - ay) / (by - ay) + ax:
+                inside = not inside
+            best = min(best, _point_to_segment(px, py, ax, ay, bx, by))
+    return best if inside else -best
+
+
+def pole_of_inaccessibility(rings, precision=0.25):
+    """Polylabel (Mapbox's algorithm): the point inside a polygon that is farthest from its outline, and that distance.
+    rings are in pixels. The distance is the radius of the largest circle that fits inside the polygon."""
+    xs = [x for x, _ in rings[0]]
+    ys = [y for _, y in rings[0]]
+    x0, y0, x1, y1 = min(xs), min(ys), max(xs), max(ys)
+    cell = min(x1 - x0, y1 - y0)
+    if cell == 0:
+        return (x0, y0), 0.0
+    h = cell / 2
+    import heapq
+    heap = []
+
+    def push(x, y, h):
+        d = _signed_distance(x, y, rings)
+        heapq.heappush(heap, (-(d + h * math.sqrt(2)), x, y, h, d))
+    x = x0
+    while x < x1:
+        y = y0
+        while y < y1:
+            push(x + h, y + h, h)
+            y += cell
+        x += cell
+    a, cx_, cy_ = ring_area_centroid(list(rings[0]))[0], *ring_area_centroid(list(rings[0]))[1]
+    best = ((cx_, cy_), _signed_distance(cx_, cy_, rings))
+    while heap:
+        _, x, y, h, d = heapq.heappop(heap)
+        if d > best[1]:
+            best = ((x, y), d)
+        if d + h * math.sqrt(2) - best[1] <= precision:
+            continue
+        h /= 2
+        for sx in (-h, h):
+            for sy in (-h, h):
+                push(x + sx, y + sy, h)
+    return best
+
+
+def largest_inscribed_circle(state, project):
+    """Largest circle that fits inside any one piece of the state, at the map's pixel scale: ((x, y), radius_px, (lon, lat))."""
+    best = None
+    for poly in state["polygons"]:
+        rings = [[project(lon, lat) for lon, lat in ring] for ring in poly]
+        (x, y), r = pole_of_inaccessibility(rings)
+        if best is None or r > best[1]:
+            best = ((x, y), r)
+    return best
+
+
+def unproject(project, x, y, guess):
+    """Longitude and latitude of a pixel position (Newton steps on the forward projection)."""
+    lon, lat = guess
+    for _ in range(30):
+        fx, fy = project(lon, lat)
+        ex, ey = x - fx, y - fy
+        if abs(ex) < 1e-6 and abs(ey) < 1e-6:
+            break
+        e = 1e-5
+        ax, ay = project(lon + e, lat)
+        bx, by = project(lon, lat + e)
+        j = np.array([[(ax - fx) / e, (bx - fx) / e], [(ay - fy) / e, (by - fy) / e]])
+        dlon, dlat = np.linalg.solve(j, [ex, ey])
+        lon, lat = lon + dlon, lat + dlat
+    return lon, lat
+
+
 def albers(lon, lat, parallels=(2.0, 6.0), central_meridian=109.6):
     """Conic equal-area (Albers) projection, same formulas as d3-geo's conicEqualArea:
     parallels [2, 6] and central meridian 109.6 E, i.e. rotate [-109.6, 0, 0]. Returns (x, y) with y pointing UP."""
