@@ -103,9 +103,10 @@ a:hover { text-decoration-thickness: 0.14em; }
 }
 .grid > * { min-width: 0; }           /* lets long words and URLs wrap instead of widening the page */
 
-.col-spine { grid-column: 4 / span 6; }   /* the reading spine: columns 4 to 9  */
-.col-wide  { grid-column: 3 / span 8; }   /* wide spine: columns 3 to 10        */
-.col-full  { grid-column: 1 / -1; }       /* full width: columns 1 to 12        */
+/* Everything starts at the same left edge (column 1), so headings, text, charts, numbers and the footer line up. */
+.col-spine { grid-column: 1 / span 8; }   /* headings and text: columns 1 to 8   */
+.col-wide  { grid-column: 1 / span 8; }   /* same left edge                      */
+.col-full  { grid-column: 1 / -1; }       /* full width: columns 1 to 12         */
 
 /* ---------- 4. HERO ------------------------------------------------------- */
 .hero { padding-block: var(--space-8) var(--space-7); }
@@ -165,7 +166,7 @@ a:hover { text-decoration-thickness: 0.14em; }
   background: var(--c-text); color: var(--c-bg); border-radius: 999px; text-align: center; letter-spacing: 0.04em;
 }
 .story__title { grid-row: 2; font-size: var(--step-2); margin-bottom: var(--space-5); }
-.story .prose { grid-row: 3; }
+.story .prose { grid-row: 3; grid-column: 1 / span 6; }   /* body text: columns 1 to 6, notes sit to its right */
 
 /* Margin notes explain a term the first time it appears. */
 .note {
@@ -175,13 +176,13 @@ a:hover { text-decoration-thickness: 0.14em; }
 }
 .note p { margin: 0 0 var(--space-2); }
 .note__term { color: var(--c-text); font-weight: 700; }
-.note--left  { grid-column: 1 / span 3; }
+.note--left  { grid-column: 7 / span 3; }
 .note--right { grid-column: 10 / span 3; }
 
 /* ---------- 6. CHART SLOTS ------------------------------------------------ */
 .chart { margin: var(--space-7) 0 0; }
 .chart--full  { grid-column: 1 / -1; }
-.chart--spine { grid-column: 4 / span 6; }
+.chart--spine { grid-column: 1 / span 6; }   /* same width and left edge as the body text */
 
 .chart__frame { position: relative; min-height: var(--chart-h, 380px); }
 .chart__canvas { width: 100%; }
@@ -219,7 +220,7 @@ a:hover { text-decoration-thickness: 0.14em; }
 
 /* Closing box (section 6). */
 .caveats {
-  grid-column: 3 / span 8; margin-top: var(--space-7);
+  grid-column: 1 / -1; margin-top: var(--space-7);
   padding: var(--space-5) var(--space-6);
   background: var(--c-surface); border-left: 4px solid var(--c-text); border-radius: 0 var(--radius) var(--radius) 0;
 }
@@ -245,7 +246,7 @@ a:hover { text-decoration-thickness: 0.14em; }
 @media (max-width: 960px) {
   .grid { grid-template-columns: minmax(0, 1fr); }
   .col-spine, .col-wide, .col-full,
-  .chart--full, .chart--spine, .caveats,
+  .chart--full, .chart--spine, .caveats, .story .prose,
   .note--left, .note--right { grid-column: 1 / -1; }
   .story__kicker, .story__title, .story .prose, .note { grid-row: auto; }
 
