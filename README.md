@@ -34,4 +34,4 @@ Vega 5.22.1, Vega-Lite 5.2.0 and vega-embed 6.20.8, loaded from jsDelivr. Fonts:
 
 ## Before submission
 
-Check the wording of the AI acknowledgement in the footer of `index.html`, and upload the hand-drawn sketch as a PDF to this repository (the Moodle form asks for its URL).
+Add the acknowledgement of AI use (to the page and/or the Moodle template), and upload the hand-drawn sketch as a PDF to this repository (the Moodle form asks for its URL).

@@ -36,7 +36,7 @@ PLATE_FIRST_ROW_Y = 114          # y of the first row of the middle table (9 row
 DORLING_W, DORLING_H = 1000, 470    # canvas; circles are kept inside the top DORLING_AREA_H pixels
 DORLING_AREA_H = 440
 DORLING_MAX_R = 60                 # radius in pixels of the biggest circle
-TREEMAP_W, TREEMAP_H = 520, 400
+TREEMAP_W, TREEMAP_H = 720, 460
 # C4 tile grid map: one equal square per state, placed roughly where the state is (column, row)
 TILE_SIZE, TILE_GAP = 92, 8
 TILE_TOP, TILE_LEFT = 20, 8          # pixels of space above and to the left of the grid

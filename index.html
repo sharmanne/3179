@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=10">
 
   <!-- Chart libraries: exact versions pinned to the ones used in the unit's studios and tested in this project. -->
   <script defer src="https://cdn.jsdelivr.net/npm/vega@5.22.1"></script>
@@ -28,8 +28,7 @@
   <header class="hero">
     <div class="container grid">
       <h1 class="hero__title col-spine">Less rice, more milk</h1>
-      <p class="hero__subtitle col-spine">The changing Malaysian plate</p>
-      <p class="hero__promise col-spine">Do we still grow what we eat?</p>
+      <p class="hero__subtitle col-spine">How the Malaysian plate has changed since 2010, and whether we still grow what we eat</p>
       <p class="hero__byline col-spine">By Yeoh Sharmanne &middot; <time datetime="2026-10-14">14/10/2026</time></p>
 
       <div class="hero__intro prose col-spine">
@@ -67,8 +66,6 @@
     <section class="story" id="s1" aria-labelledby="s1-title">
       <div class="container grid">
         <h2 class="story__title col-spine" id="s1-title">Rice now supplies fewer than 1 in 4 calories, down from nearly 3 in 10</h2>
-
-        <!-- DRAFT TEXT: replace with your own wording -->
         <div class="prose col-spine">
           <p>FAO, the United Nations food agency, estimates how much food energy is available to each person in Malaysia every day. In 2010, rice supplied about 30 of every 100 calories. By 2023 it supplied about 24.</p>
         </div>
@@ -102,8 +99,6 @@
     <section class="story" id="s2" aria-labelledby="s2-title">
       <div class="container grid">
         <h2 class="story__title col-spine" id="s2-title">Since 2010 Malaysians eat 15% less rice and 75% more milk</h2>
-
-        <!-- DRAFT TEXT: replace with your own wording -->
         <div class="prose col-spine">
           <p>Comparing the average of 2010&ndash;2012 with the average of 2021&ndash;2023, the food available per person shows about 15% less rice and about 75% more milk. Eggs are up about 40% and fruit about 34%, while fish is down about 11%. Flour and sugar have hardly changed.</p>
         </div>
@@ -152,8 +147,6 @@
     <section class="story" id="s3" aria-labelledby="s3-title">
       <div class="container grid">
         <h2 class="story__title col-spine" id="s3-title">Kedah grows 38% of our paddy, and Pahang grows 45% of our vegetables</h2>
-
-        <!-- DRAFT TEXT: replace with your own wording -->
         <div class="prose col-spine">
           <p>Four states grew 72% of the 2024 paddy harvest, and Kedah alone grew 38%. Pahang grew 45% of the vegetables, and Johor grew 39% of the fruit.</p>
         </div>
@@ -217,8 +210,6 @@
     <section class="story" id="s4" aria-labelledby="s4-title">
       <div class="container grid">
         <h2 class="story__title col-spine" id="s4-title">We harvest a third less paddy per person than in 2014, but the rice on the plate fell only 3%</h2>
-
-        <!-- DRAFT TEXT: replace with your own wording -->
         <div class="prose col-spine">
           <p>Between 2014 and 2023 the paddy harvested for each person in Malaysia fell by about a third, from 93 kilograms to 62 kilograms. Yet the rice available per person fell by only 3%, from 121 kilograms to 118 kilograms.</p>
         </div>
@@ -252,8 +243,6 @@
     <section class="story" id="s5" aria-labelledby="s5-title">
       <div class="container grid">
         <h2 class="story__title col-spine" id="s5-title">Fewer fields and lower yields each cut about 15% off the harvest, and Kedah and Sarawak account for half of the loss</h2>
-
-        <!-- DRAFT TEXT: replace with your own wording -->
         <div class="prose col-spine">
           <p>Paddy fields shrank by about 15% between 2014 and 2024, and the harvest from each hectare fell by about 15% too. Together they cut the national harvest by 28%. Kedah and Sarawak account for about half of the tonnes lost.</p>
         </div>
@@ -317,14 +306,12 @@
     <section class="story" id="s6" aria-labelledby="s6-title">
       <div class="container grid">
         <h2 class="story__title col-spine" id="s6-title">More than half of the crop land DOSM counts grows paddy, so what happens to rice farming matters</h2>
-
-        <!-- DRAFT TEXT: replace with your own wording -->
         <div class="prose col-spine">
           <p>Of the nine crop groups in DOSM&rsquo;s records, paddy takes up 53% of the planted land. Fruit uses about a third of the land that paddy does, yet its harvest weighs almost the same: 1.97 million tonnes against 2.06 million.</p>
         </div>
 
         <figure class="chart chart--spine is-placeholder" id="chart-c11"
-                data-chart="C11" data-spec="specs/c11-treemap.vl.json" data-height="566">
+                data-chart="C11" data-spec="specs/c11-treemap.vl.json" data-height="626">
           <div class="chart__frame">
             <div class="chart__canvas"></div>
             <div class="chart__placeholder">
@@ -346,48 +333,34 @@
   <!-- ===================================================== FOOTER ===================================================== -->
   <footer class="site-footer">
     <div class="container grid">
-      <h2 class="site-footer__title col-full">Sources, licences and credits</h2>
+      <h2 class="site-footer__title col-full">Sources and notes</h2>
 
-      <section class="col-full footer-block" aria-labelledby="f-about">
-        <h3 id="f-about">About this page</h3>
-        <p>Made for FIT3179 Data Visualisation 2, Monash University Malaysia, Semester 2, 2026. Topic: Cooking and Baking.</p>
-        <p>Author: Yeoh Sharmanne<br>
-           Date: 14/10/2026</p>
-      </section>
+      <div class="footer-col footer-col--left">
+        <section class="footer-block" aria-labelledby="f-about">
+          <h3 id="f-about">About this page</h3>
+          <p>Made for FIT3179 Data Visualisation 2, Monash University Malaysia, Semester 2, 2026. Topic: Cooking and Baking.</p>
+          <p>Author: Yeoh Sharmanne<br>
+             Date: 14/10/2026</p>
+        </section>
 
-      <section class="col-full footer-block" aria-labelledby="f-data">
-        <h3 id="f-data">Data sources</h3>
-        <ol class="sources">
-          <li>
-            <strong>Food Balances (2010&ndash;)</strong>, FAOSTAT, Food and Agriculture Organization of the United Nations (FAO). Malaysia, 2010&ndash;2023.
-            <br><a href="https://www.fao.org/faostat/en/#data/FBS" rel="noopener">Dataset page</a> &middot;
-            <a href="https://bulks-faostat.fao.org/production/FoodBalanceSheets_E_All_Data_(Normalized).zip" rel="noopener">Bulk download (zip)</a>
-            <br>Licence: Creative Commons Attribution 4.0 (CC BY 4.0) plus FAO&rsquo;s <a href="https://www.fao.org/contact-us/terms/db-terms-of-use/en/" rel="noopener">database terms of use</a>. Retrieved: 14/10/2026.
-          </li>
-          <li>
-            <strong>Crop Area and Production by State</strong>, Department of Statistics Malaysia (DOSM), with the Department of Agriculture. 2014&ndash;2024.
-            <br><a href="https://open.dosm.gov.my/data-catalogue/crops_state" rel="noopener">Dataset page</a> &middot;
-            <a href="https://storage.data.gov.my/agriculture/crops_state.csv" rel="noopener">CSV file</a>
-            <br>Licence: Creative Commons Attribution 4.0 (CC BY 4.0). Retrieved: 14/10/2026.
-          </li>
-          <li>
-            <strong>State boundaries</strong> (map shapes), DOSM open data repository.
-            <br><a href="https://github.com/dosm-malaysia/data-open/tree/main/datasets/geodata" rel="noopener">Repository folder</a>
-            <br>Licence: DOSM Open Data Licence. Retrieved: 14/10/2026.
-          </li>
-        </ol>
-        <p>Figures on this page are calculated from these files. Every cleaning step is listed in <a href="https://github.com/sharmanne/3179/blob/main/DATA_SOURCES.md" rel="noopener">DATA_SOURCES.md</a>, and each chart&rsquo;s Vega-Lite specification is in the <a href="https://github.com/sharmanne/3179/tree/main/specs" rel="noopener">specs folder</a> of the repository.</p>
-      </section>
+        <section class="footer-block" aria-labelledby="f-notes">
+          <h3 id="f-notes">Notes on the data</h3>
+          <p>The food figures are estimates of the food available for each person in Malaysia, not of what people actually eat, because some food is wasted, fed to animals or used in factories. Paddy is rice before milling, so a tonne of paddy gives less than a tonne of rice; that is why the chart comparing them shows changes since 2014 rather than weights. The two sources are combined only by year, because the food figures cover the whole country and the crop figures cover each state.</p>
+        </section>
+      </div>
 
-      <section class="col-full footer-block" aria-labelledby="f-ai">
-        <h3 id="f-ai">Use of generative artificial intelligence</h3>
-        <p>I acknowledge the use of Claude Code (Anthropic) in Visual Studio Code to plan the story and the charts, to write the data-cleaning scripts, the Vega-Lite chart specifications and the page&rsquo;s HTML, CSS and JavaScript, and to draft and check the wording. I chose the topic and the data, hand-drew the sketch, checked the charts and figures against the source files, and edited the text. No images on this page were made with AI.</p>
-      </section>
-
-      <section class="col-full footer-block" aria-labelledby="f-credits">
-        <h3 id="f-credits">Fonts and software</h3>
-        <p>Typefaces: Fraunces and Source Sans 3, loaded from Google Fonts under the SIL Open Font Licence. Charts: Vega 5.22.1, Vega-Lite 5.2.0 and vega-embed 6.20.8, loaded from jsDelivr.</p>
-      </section>
+      <div class="footer-col footer-col--right">
+        <section class="footer-block" aria-labelledby="f-data">
+          <h3 id="f-data">Data sources</h3>
+          <!-- APA 7th edition reference list: alphabetical by author, then by year. Retrieval dates are given for the two
+               datasets that are updated over time, as APA 7 asks for content that changes and is not archived. -->
+          <ul class="references">
+            <li>Department of Statistics Malaysia. (2022). <em>State boundaries of Malaysia</em> [Data set]. GitHub. <a href="https://github.com/dosm-malaysia/data-open/tree/main/datasets/geodata" rel="noopener">https://github.com/dosm-malaysia/data-open/tree/main/datasets/geodata</a></li>
+            <li>Department of Statistics Malaysia. (2026). <em>Crop area and production by state</em> [Data set]. OpenDOSM. Retrieved October 14, 2026, from <a href="https://open.dosm.gov.my/data-catalogue/crops_state" rel="noopener">https://open.dosm.gov.my/data-catalogue/crops_state</a></li>
+            <li>Food and Agriculture Organization of the United Nations. (2025). <em>Food balances (2010&ndash;)</em> [Data set]. FAOSTAT. Retrieved October 14, 2026, from <a href="https://www.fao.org/faostat/en/#data/FBS" rel="noopener">https://www.fao.org/faostat/en/#data/FBS</a></li>
+          </ul>
+        </section>
+      </div>
     </div>
   </footer>
 </body>

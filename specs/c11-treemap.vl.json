@@ -5,12 +5,12 @@
     "frame": "group",
     "text": ["Paddy fills more than half of the", "crop land DOSM counts"],
     "subtitle": [
-      "Planted area, 2024. Each block is a crop group, split into the",
-      "states that grow it. Rectangle area = hectares. Source: DOSM."
+      "Planted area, 2024. Each block is a crop group, split into the states that grow it.",
+      "Rectangle area = hectares. Source: DOSM."
     ]
   },
-  "width": 520,
-  "height": 470,
+  "width": 720,
+  "height": 530,
   "autosize": {"type": "none"},
   "padding": {"left": 4, "right": 4, "top": 92, "bottom": 4},
   "data": {"url": "data/clean/landuse_treemap.csv", "format": {"type": "csv", "parse": {"planted_area_ha": "number", "share_of_group_pct": "number", "group_area_ha": "number", "group_share_pct": "number", "group_production_t": "number", "x0": "number", "y0": "number", "x1": "number", "y1": "number", "gx0": "number", "gy0": "number", "gx1": "number", "gy1": "number", "group_label_lines": "number", "state_label": "number"}}},
@@ -26,9 +26,9 @@
       "params": [{"name": "hover", "select": {"type": "point", "fields": ["crop_type", "state"], "on": "mouseover", "clear": "mouseout"}}],
       "mark": {"type": "rect", "opacity": 1},
       "encoding": {
-        "x": {"field": "x0", "type": "quantitative", "scale": {"domain": [0, 520]}, "axis": null},
+        "x": {"field": "x0", "type": "quantitative", "scale": {"domain": [0, 720]}, "axis": null},
         "x2": {"field": "x1"},
-        "y": {"field": "y0", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}, "axis": null},
+        "y": {"field": "y0", "type": "quantitative", "scale": {"domain": [0, 530], "reverse": true}, "axis": null},
         "y2": {"field": "y1"},
         "color": {"condition": [{"test": "datum.crop_type == 'paddy'", "value": "#00553F"}, {"test": "datum.crop_type == 'fruits'", "value": "#C99A00"}], "value": "#D5CEC1"},
         "stroke": {"condition": {"param": "hover", "empty": false, "value": "#1F1B16"}, "value": "#FBF8F3"},
@@ -47,9 +47,9 @@
       "transform": [{"aggregate": [{"op": "min", "field": "gx0", "as": "gx0"}, {"op": "min", "field": "gy0", "as": "gy0"}, {"op": "max", "field": "gx1", "as": "gx1"}, {"op": "max", "field": "gy1", "as": "gy1"}], "groupby": ["crop_type"]}],
       "mark": {"type": "rect", "fill": null, "stroke": "#FBF8F3", "strokeWidth": 3},
       "encoding": {
-        "x": {"field": "gx0", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "x": {"field": "gx0", "type": "quantitative", "scale": {"domain": [0, 720]}},
         "x2": {"field": "gx1"},
-        "y": {"field": "gy0", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
+        "y": {"field": "gy0", "type": "quantitative", "scale": {"domain": [0, 530], "reverse": true}},
         "y2": {"field": "gy1"}
       }
     },
@@ -64,8 +64,8 @@
       ],
       "mark": {"type": "text", "align": "left", "baseline": "top", "fontSize": 13, "fontWeight": 700, "lineHeight": 16},
       "encoding": {
-        "x": {"field": "lx", "type": "quantitative", "scale": {"domain": [0, 520]}},
-        "y": {"field": "ly", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
+        "x": {"field": "lx", "type": "quantitative", "scale": {"domain": [0, 720]}},
+        "y": {"field": "ly", "type": "quantitative", "scale": {"domain": [0, 530], "reverse": true}},
         "text": {"field": "text_lines", "type": "nominal"},
         "color": {"condition": {"test": "datum.crop_type == 'paddy'", "value": "#FFFFFF"}, "value": "#1F1B16"}
       }
@@ -79,8 +79,8 @@
       ],
       "mark": {"type": "text", "align": "left", "baseline": "bottom", "fontSize": 12, "fontWeight": 400, "color": "#FFFFFF"},
       "encoding": {
-        "x": {"field": "lx", "type": "quantitative", "scale": {"domain": [0, 520]}},
-        "y": {"field": "ly", "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
+        "x": {"field": "lx", "type": "quantitative", "scale": {"domain": [0, 720]}},
+        "y": {"field": "ly", "type": "quantitative", "scale": {"domain": [0, 530], "reverse": true}},
         "text": {"field": "display_name", "type": "nominal"}
       }
     },
@@ -92,9 +92,9 @@
       ],
       "mark": {"type": "rule", "stroke": "#1F1B16", "strokeWidth": 1.5},
       "encoding": {
-        "x": {"field": "bx0", "type": "quantitative", "scale": {"domain": [0, 520]}},
+        "x": {"field": "bx0", "type": "quantitative", "scale": {"domain": [0, 720]}},
         "x2": {"field": "bx1"},
-        "y": {"datum": 410, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}}
+        "y": {"datum": 470, "type": "quantitative", "scale": {"domain": [0, 530], "reverse": true}}
       }
     },
     {
@@ -106,9 +106,9 @@
       ],
       "mark": {"type": "rule", "stroke": "#1F1B16", "strokeWidth": 1.5},
       "encoding": {
-        "x": {"field": "xt", "type": "quantitative", "scale": {"domain": [0, 520]}},
-        "y": {"datum": 402, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
-        "y2": {"datum": 410}
+        "x": {"field": "xt", "type": "quantitative", "scale": {"domain": [0, 720]}},
+        "y": {"datum": 462, "type": "quantitative", "scale": {"domain": [0, 530], "reverse": true}},
+        "y2": {"datum": 470}
       }
     },
     {
@@ -121,8 +121,8 @@
       ],
       "mark": {"type": "text", "align": "right", "baseline": "top", "dy": 6, "fontSize": 12.5, "fontWeight": 600, "lineHeight": 15, "color": "#1F1B16"},
       "encoding": {
-        "x": {"field": "bx1", "type": "quantitative", "scale": {"domain": [0, 520]}},
-        "y": {"datum": 410, "type": "quantitative", "scale": {"domain": [0, 470], "reverse": true}},
+        "x": {"field": "bx1", "type": "quantitative", "scale": {"domain": [0, 720]}},
+        "y": {"datum": 470, "type": "quantitative", "scale": {"domain": [0, 530], "reverse": true}},
         "text": {"field": "note", "type": "nominal"}
       }
     }

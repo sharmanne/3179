@@ -115,7 +115,6 @@ a:hover { text-decoration-thickness: 0.14em; }
   font-family: var(--font-head); font-size: var(--step-1); font-weight: 400; color: var(--c-text-muted);
   margin-bottom: var(--space-5);
 }
-.hero__promise { font-size: var(--step-1); line-height: 1.35; font-weight: 600; margin-bottom: var(--space-3); }
 .hero__byline  { font-size: var(--step--1); color: var(--c-text-muted); margin-bottom: var(--space-6); }
 .hero__intro   { margin-bottom: var(--space-6); }
 
@@ -201,8 +200,8 @@ a:hover { text-decoration-thickness: 0.14em; }
 .chart__caption { margin-top: var(--space-3); font-size: var(--step--1); line-height: 1.4; color: var(--c-text-muted); max-width: var(--measure); }
 
 /* Section 6: the treemap sits on the left and its description on the right, so the right side is not empty. */
-#s6 .prose { grid-row: 2; grid-column: 8 / span 5; align-self: center; }
-#chart-c11 { grid-row: 2; margin-top: 0; }
+#s6 .prose { grid-row: 2; grid-column: 10 / span 3; align-self: center; }   /* same column as the margin notes in the other sections */
+#chart-c11 { grid-row: 2; grid-column: 1 / span 9; margin-top: 0; }
 
 /* Shown by main.js if the page is opened from a file instead of a server. */
 .page-banner {
@@ -213,15 +212,21 @@ a:hover { text-decoration-thickness: 0.14em; }
 /* ---------- 7. FOOTER ----------------------------------------------------- */
 .site-footer { background: var(--c-surface); border-top: 1px solid var(--c-border); padding-block: var(--space-8); font-size: 1rem; }
 .site-footer__title { font-size: var(--step-2); margin-bottom: var(--space-6); }
+/* Two equal halves: about the page and notes on the left, the reference list on the right */
+.footer-col--left  { grid-column: 1 / span 6; }
+.footer-col--right { grid-column: 7 / span 6; }
 .footer-block { margin-bottom: var(--space-6); }
+.footer-block:last-child { margin-bottom: 0; }
 .footer-block h3 { font-size: var(--step-1); margin-bottom: var(--space-3); }
-.footer-block p, .footer-block li { max-width: 90ch; }
-.sources li { margin-bottom: var(--space-4); }
+.footer-block p, .footer-block li { max-width: var(--measure); }
+/* APA reference list: no bullets, hanging indent */
+.references { list-style: none; padding-left: 0; }
+.references li { padding-left: 2em; text-indent: -2em; margin-bottom: var(--space-3); }
 
 /* ---------- 8. NARROW SCREENS (stack everything) -------------------------- */
 @media (max-width: 960px) {
   .grid { grid-template-columns: minmax(0, 1fr); }
-  .col-spine, .col-full,
+  .col-spine, .col-full, .footer-col--left, .footer-col--right,
   .chart--full, .chart--spine, .story .prose,
   .note--left, .note--right { grid-column: 1 / -1; }
   .story__title, .story .prose, .note { grid-row: auto; }
